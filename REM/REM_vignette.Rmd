@@ -25,3 +25,7 @@ plot(region)
 ```
 
 Should be noted that all the necessary parameters to apply REM (i.e. day range, encounter rate and detection zone) will be derived from camera trap data. Without the need of auxiliary data. This required additional effort, especialy during image processing, but it is recommended considering the spatio-temporal variations in day range, and the variability in detection zone as function of target species, camera trap brand, settings and enviromental variables between others.
+
+# 2. Importing dataframes and functions
+Three dataframes are needed to run the analysis: i) the raw data of day range, detection zone and encounter rate, ii) the operativity matrix (information about camera traps functionality), and iii) camera trap coordinates (just for plots and exploratory analysis). 
+Adittionally, we will need to import a couple of functions that are not included in an R package (these functions were devoloped by M. Rowcliffe and Distance Sampling folks from St. Andrews University).
