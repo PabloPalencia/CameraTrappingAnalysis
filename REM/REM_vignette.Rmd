@@ -6,8 +6,9 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = 'D:/rprojects/CameraTrappingAnalysis/REM/Data')
 ```
+
 
 # 1. Introduction
 
@@ -17,15 +18,45 @@ The Random Encounter Model (**REM**) is a method for estimating animal density f
 ## 1.2 Practical exercise
 Here, I'm going to estimate population density of fallow deer (*Dama dama*) population samped with 30 camera traps. (Why fallow deer? Easy, is my favourite species, see Figure \@ref(fig:fallowdeer)).
 
-#```{r fallowdeer, fig.align='center', fig.cap="One of the fallow deer of our target population", fig.width=2.5, fig.height=3.5, include=FALSE}
+![fd_photo](FallowDeerPhoto.jpg)
 
-# Plot fallow deer  
+```{r fallowdeer, fig.align='center', fig.cap="One of the fallow deer of our target population", fig.width=2.5, fig.height=3.5, include=FALSE}
+#library(jpeg)
+#fd_photo<-readJPEG("FallowDeerPhoto.jpg")
 
-#plot(region)
-#```
+#Plot fallow deer  
+#knitr::include_graphics("fd_photo")
+#![fd_photo](FallowDeerPhoto.jpg)
+```
 
-Should be noted that all the necessary parameters to apply REM (i.e. day range, encounter rate and detection zone) will be derived from camera trap data. Without the need of auxiliary data. This required additional effort, especialy during image processing, but it is recommended taking into account the spatio-temporal variations in day range, and the variability in detection zone as function of target species, camera trap brand, settings and enviromental variables between others. Please, note that *remBoot* R package implemet REM calculations in R (Caravaggi, 2017 - J. Open Source Softw.- 2(10):176 ).
+Should be noted that all the necessary parameters to apply REM (i.e. day range, encounter rate and detection zone) will be derived from camera trap data. Without the need of auxiliary data. This required additional effort, especialy during image processing, but it is recommended taking into account the spatio-temporal variations in day range, and the variability in detection zone as function of target species, camera trap brand, settings and enviromental variables between others. Please, note that *remBoot* R package implemet REM calculations in R (Caravaggi, 2017 - J. Open Source Softw.- 2(10):176).
 
 # 2. Importing dataframes and functions
 Three dataframes are needed to run the analysis: i) the raw data of day range, detection zone and encounter rate, ii) the operativity matrix (information about camera traps functionality), and iii) camera trap coordinates (just for plots and exploratory analysis). 
 Adittionally, we will need to import a couple of functions that are not included in an R package (these functions were devoloped by M. Rowcliffe and Distance Sampling folks from St. Andrews University).
+
+```{r, warning=FALSE, message=FALSE}
+# Load dataframes
+data <- read.table("Data.txt", sep = ";", dec=".", header=TRUE, as.is=TRUE) # parameters dataframe
+operat <- read.table("Operativity.txt", sep = ";", dec=".", header=TRUE, as.is=TRUE) # operatity matrix (to estimate survey effort)
+df_coord <- read.table("Coordinates.txt", sep = ";", dec=".", header=TRUE, as.is=TRUE) # camera trap locations (plots, maps etc.)
+
+# Load functions
+source("REM_functions.R") # importing some key functions to run the analysis
+
+
+# Packages required to run the analyses
+library(activity) # to estimate activity pattern and day range
+library(trappingmotion) # to estimate speed and day range
+library(Distance) # to estimate detection zone
+library(dplyr) # to work with dataframes
+
+```
+
+# 3. Analysis
+As described above, all the parameters needed to apply REM will be derived from camera trap data (*data* dataframe). I have included a specific section for each parameter.
+
+## 3.1 Day range
+### 3.1.1 Activity
+### 3.2.2 Speed
+## 3.1 Day range

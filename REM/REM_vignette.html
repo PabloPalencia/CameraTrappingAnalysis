@@ -206,11 +206,25 @@ summary {
 </div>
 <div id="section" class="section level1">
 <h1>```</h1>
-<p>Should be noted that all the necessary parameters to apply REM (i.e. day range, encounter rate and detection zone) will be derived from camera trap data. Without the need of auxiliary data. This required additional effort, especialy during image processing, but it is recommended taking into account the spatio-temporal variations in day range, and the variability in detection zone as function of target species, camera trap brand, settings and enviromental variables between others. Please, note that <em>remBoot</em> R package implemet REM calculations in R (Caravaggi, 2017 - J. Open Source Softw.- 2(10):176 ).</p>
+<p>Should be noted that all the necessary parameters to apply REM (i.e. day range, encounter rate and detection zone) will be derived from camera trap data. Without the need of auxiliary data. This required additional effort, especialy during image processing, but it is recommended taking into account the spatio-temporal variations in day range, and the variability in detection zone as function of target species, camera trap brand, settings and enviromental variables between others. Please, note that <em>remBoot</em> R package implemet REM calculations in R (Caravaggi, 2017 - J. Open Source Softw.- 2(10):176).</p>
 </div>
 <div id="importing-dataframes-and-functions" class="section level1">
 <h1>2. Importing dataframes and functions</h1>
 <p>Three dataframes are needed to run the analysis: i) the raw data of day range, detection zone and encounter rate, ii) the operativity matrix (information about camera traps functionality), and iii) camera trap coordinates (just for plots and exploratory analysis). Adittionally, we will need to import a couple of functions that are not included in an R package (these functions were devoloped by M. Rowcliffe and Distance Sampling folks from St. Andrews University).</p>
+<pre class="r"><code># Load dataframes
+data &lt;- read.table(&quot;Data.txt&quot;, sep = &quot;;&quot;, dec=&quot;.&quot;, header=TRUE, as.is=TRUE) # parameters dataframe
+operat &lt;- read.table(&quot;Operativity.txt&quot;, sep = &quot;;&quot;, dec=&quot;.&quot;, header=TRUE, as.is=TRUE) # operatity matrix (to estimate survey effort)
+df_coord &lt;- read.table(&quot;Coordinates.txt&quot;, sep = &quot;;&quot;, dec=&quot;.&quot;, header=TRUE, as.is=TRUE) # camera trap locations (plots, maps etc.)
+
+# Load functions
+#source(&quot;REM_functions.R&quot;) # importing some key functions to run the analysis
+
+
+# Packages required to run the analyses
+library(activity) # to estimate activity pattern and day range
+library(trappingmotion) # to estimate speed and day range
+library(Distance) # to estimate detection zone
+library(dplyr) # to work with dataframes</code></pre>
 </div>
 
 
