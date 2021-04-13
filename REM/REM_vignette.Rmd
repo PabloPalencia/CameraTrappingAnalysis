@@ -16,18 +16,10 @@ knitr::opts_knit$set(root.dir = 'D:/rprojects/CameraTrappingAnalysis/REM/Data')
 The Random Encounter Model (**REM**) is a method for estimating animal density from camera trap data without the need for individual recognition (Rowcliffe et al., 2008 - J. App. Ecol. 45: 1228-1236). Over the last years it has been used for a wide range of unmarked species (Cusack et al., 2015 - J. Wild. Manag. 79(6): 1014-1021; ENETWILD-consortium et al., 2019 - EFSA Supporting Publications - 16(9); Pfeffer et al., 2018 - Remote Sens. Ecol. Conserv. 2:84-94; Zero et al., 2013 - Oryx 47(3): 410-419).
 
 ## 1.2 Practical exercise
-Here, I'm going to estimate population density of fallow deer (*Dama dama*) population samped with 30 camera traps. (Why fallow deer? Easy, is my favourite species, see Figure \@ref(fig:fallowdeer)).
+Here, I'm going to estimate population density of fallow deer (*Dama dama*) population samped with 30 camera traps. (Why fallow deer? Easy, is my favourite species, see **Figure 1**).
 
-![fd_photo](FallowDeerPhoto.jpg)
+![**Figure 1**: Fallow deer picture](D:/rprojects/CameraTrappingAnalysis/REM/Data/FallowDeerPhoto.jpg)
 
-```{r fallowdeer, fig.align='center', fig.cap="One of the fallow deer of our target population", fig.width=2.5, fig.height=3.5, include=FALSE}
-#library(jpeg)
-#fd_photo<-readJPEG("FallowDeerPhoto.jpg")
-
-#Plot fallow deer  
-#knitr::include_graphics("fd_photo")
-#![fd_photo](FallowDeerPhoto.jpg)
-```
 
 Should be noted that all the necessary parameters to apply REM (i.e. day range, encounter rate and detection zone) will be derived from camera trap data. Without the need of auxiliary data. This required additional effort, especialy during image processing, but it is recommended taking into account the spatio-temporal variations in day range, and the variability in detection zone as function of target species, camera trap brand, settings and enviromental variables between others. Please, note that *remBoot* R package implemet REM calculations in R (Caravaggi, 2017 - J. Open Source Softw.- 2(10):176).
 
@@ -57,6 +49,36 @@ library(dplyr) # to work with dataframes
 As described above, all the parameters needed to apply REM will be derived from camera trap data (*data* dataframe). I have included a specific section for each parameter.
 
 ## 3.1 Day range
+Day range (average daily distance travelled by and individual) is a parameter that relies on movement and behaviour. Recent studies have described a porcedure to estimate day range from camera trapping data (Palencia et al. 2021 - Methods Ecol. Evol. doi: 10.1111/2041-210X.13609; Rowcliffe et al. 2016 - Remote Sens. Ecol. Conserv. 2:84-94). Briefly, day range is estimated as the product of speed (average speed of travel while active) and activity rate (proportion of day that the population spent active).
+
 ### 3.1.1 Activity
+To estimate activity, we will use the columns "G_size" and "H_first". "G_size" includes the number of animals observed per group, and "H_first" includes the time of the first photo of each group.(Adittionally, to avoid the bias caused by shorter detection distances at night (see Rowcliffe et al. 2014 Methods Ecol. Evol, 5(11): 1170-1179), we just considered for activity estimate sequences closer than 5m to the cameras -i.e. "Interval.min == 1 | 2").
+
+```{r, fig.width=10, fig.height=6}
+data.acti <- as.data.frame(data)
+
+# Estimating radian time of day
+data.acti$T_sec2 <- as.numeric(strptime(data.acti$H_first, format="%H:%M:%S") - as.POSIXct(format(Sys.Date())), units="secs")
+data.acti$T_0_1 <- data.acti$T_sec2/86400; data.acti <- subset(data.acti, G_size!="NA") # remove NAs
+
+# Replicating each sequence based on the group size
+activity.repli <- data.acti[rep(row.names(data.acti), data.acti$G_size), 1:16] 
+
+# Discariding observations further than 5 meters (see Rowcliffe et al. 2014 Methods Ecol. Evol, 5(11): 1170-1179)
+activity.repli <- subset(activity.repli, Interval.min =="1"  | Interval.min =="2")
+
+# Estimating activity rate
+activityRES <- 2*pi*activity.repli$T_0_1
+mod1 <- fitact(activityRES, sample="data") 
+
+# Plot activity patterns
+par(mfrow=c(1,1)); plot(mod1)
+
+mod1@act[1] # mean activity rate
+mod1@act[2] # SE activity rate
+
+```
+
+
 ### 3.2.2 Speed
 ## 3.1 Day range

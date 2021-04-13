@@ -23,8 +23,10 @@ setwd(choose.dir())
 getwd()
 # Import the .txt table into R when the data are separated by ";"
 
-# Load data
-data <- read.table("LiebresQM_REM.txt", sep = ";", dec=".", header=TRUE, as.is=TRUE)
+# Load dataframes
+data <- read.table("Data.txt", sep = ";", dec=".", header=TRUE, as.is=TRUE) # parameters dataframe
+operat <- read.table("Operativity.txt", sep = ";", dec=".", header=TRUE, as.is=TRUE) # operatity matrix (to estimate survey effort)
+df_coord <- read.table("Coordinates.txt", sep = ";", dec=".", header=TRUE, as.is=TRUE) # camera trap locations (plots, maps etc.)
 
 # The columns of the data must have the following information:
 # col1: Point_ID: ID of the camera-trap location
@@ -47,7 +49,8 @@ data <- read.table("LiebresQM_REM.txt", sep = ";", dec=".", header=TRUE, as.is=T
 
 ### FUNCTIONS (not included in packages. Developed by M. Rowcliffe & St. Andrews University)
 
-source("REM_functions.R") # uploading some key functions to run the analysis
+source("REM_functions.R") # importing some key functions to run the analysis
+
 
 ##########################################################################################################################################
 ## ACTIVITY
@@ -66,7 +69,7 @@ data.acti$T_sec2 <- as.numeric(strptime(data.acti$H_first, format="%H:%M:%S") - 
 data.acti$T_0_1 <- data.acti$T_sec2/86400; data.acti <- subset(data.acti, G_size!="NA") # remove NAs
 
 # Replicating each sequence based on the group size
-activity.repli <- data.acti[rep(row.names(data.acti), data.acti$G_size), 1:18] 
+activity.repli <- data.acti[rep(row.names(data.acti), data.acti$G_size), 1:16] 
 
 # Discariding observations further than 5 meters
 activity.repli <- subset(activity.repli, Interval.min =="1"  | Interval.min =="2")#| Interval.min =="3") 
@@ -136,11 +139,11 @@ hr_poly0 <- ds(data_dz_r$Dist_det, transect = "point", key="hr", adjustment = "p
 hr_poly2 <- ds(data_dz_r$Dist_det, transect = "point", key="hr", adjustment = "poly", order = 2, truncation=w_rad)
 
 #model comparison
-AIC(hn_cos0, hn_cos2, hn_herm0, hn_herm2, hn_poly0, hn_poly2, hr_cos0, hr_cos2, hr_herm0, hr_herm2, hr_poly0, hr_poly2)
+AIC(hn_cos0, hn_cos2, hn_herm0, hn_herm2, hn_poly0, hn_poly2, hr_cos0, hr_herm0, hr_herm2, hr_poly0, hr_poly2)
 
 # select best model
 # mind the fact that if your data is spiked at zero, you have to be carefoul with the hazard-rate model (details in Buckland et al. 2001)
-best_modRad <- hn_herm2
+best_modRad <- hr_cos0
 
 # Estimating effective detection radius and (SE)
 EfecRad <- EDRtransform(best_modRad)
@@ -159,7 +162,7 @@ par(mfrow=c(1,1))
 # Efective Detection Angle 
 
 data_dz_ang$Ang_rad <- abs(data_dz_ang$Ang_det*0.0174533)
-FOV <- 55 # field of view of the cameras (degrees)
+FOV <- 42 # field of view of the cameras (degrees)
 w_ang <- FOV/2*0.0174533
 
 # half-normal
@@ -180,11 +183,10 @@ hr_poly2Ang <- ds(data_dz_ang$Ang_rad, transect = "line", key="hr", adjustment =
 
 #model comparison
 AIC(hn_cos0Ang, hn_cos2Ang, hn_herm0Ang, hn_herm2Ang, hn_poly0Ang, hn_poly2Ang, hr_cos0Ang, hr_cos2Ang, hr_herm0Ang, hr_herm2Ang, hr_poly0Ang, hr_poly2Ang)
-AIC(hn_cos0Ang,  hn_herm0Ang, hn_herm2Ang, hn_poly0Ang, hn_poly2Ang)
 
 # select best model
 # mind the fact that if your data is spiked at zero, you have to be carefoul with the hazard-rate model (details in Buckland et al. 2001)
-best_modAng <- hn_herm0Ang  
+best_modAng <- hr_cos0Ang 
 
 # Estimating effective detection radius and (SE)
 summary_ang<- summary(best_modAng$ddf)
@@ -205,8 +207,7 @@ plot(best_modAng, main="Best model", xlab="Angle (rad)",
 
 data.dens <- as.data.frame(data)
 #data.dens <- subset(data.dens, Point_ID != 48 & Point_ID != 100)# to remove some points
-# Load the operatity matrix to estimate survey effort
-operat <- read.table("OperativityLiebresQM_REM.txt", sep = ";", dec=".", header=TRUE, as.is=TRUE)
+
 tm <- sum(colSums(operat, na.rm = FALSE, dims = 1))- sum(operat$CAM) # Survey effort (camera days)
 
 data.dens <- subset(data.dens, Dist_det < 10.1 | is.na(Dist_det)) # Based on truncation distance to estime EDD. NAs are new sequences
