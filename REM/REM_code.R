@@ -58,50 +58,32 @@ source("REM_functions.R") # importing some key functions to run the analysis
 library(activity)
 data.acti <- as.data.frame(data)
 
-# Transforming clock time to sun time and estimating radian time of day
+# Estimating radian time of day
 data.acti$T_sec2 <- as.numeric(strptime(data.acti$H_first, format="%H:%M:%S") - as.POSIXct(format(Sys.Date())), units="secs")
-
-# Transforming (January to April & November to December: -1; May to October: -2)
-# Select one line based on the period of study
-#data.acti$T_sec2<-ifelse(data.acti$T_sec>3600, data.acti$T_sec-3600, data.acti$T_sec+82800) # January to April & November to December
-#data.acti$T_sec2<-ifelse(data.acti$T_sec>7200, data.acti$T_sec-7200, data.acti$T_sec+79200) # May to October
-
 data.acti$T_0_1 <- data.acti$T_sec2/86400; data.acti <- subset(data.acti, G_size!="NA") # remove NAs
 
 # Replicating each sequence based on the group size
 activity.repli <- data.acti[rep(row.names(data.acti), data.acti$G_size), 1:16] 
 
-# Discariding observations further than 5 meters
-activity.repli <- subset(activity.repli, Interval.min =="1"  | Interval.min =="2")#| Interval.min =="3") 
+# Discariding observations further than 5 meters (see Rowcliffe et al. 2014 Methods Ecol. Evol, 5(11): 1170-1179)
+activity.repli <- subset(activity.repli, Interval.min =="1"  | Interval.min =="2")
 
-# Estimating activity value
+# Estimating activity rate
 activityRES <- 2*pi*activity.repli$T_0_1
-mod1 <- fitact(activityRES, sample="data") #sample=model: large sample size (greater than 100-200); sample=data: small sample size (less than 100); o sample=none: no bootstrapping. 
+mod1 <- fitact(activityRES, sample="data") 
 
 # Plot activity patterns
-par(mfrow=c(1,1))
-plot(mod1)
-show(mod1)
+par(mfrow=c(1,1)); plot(mod1); show(mod1)
 
 ##################################################################################################################
 ## TRAVEL SPEED (Palencia et al. 2019, Palencia et al. 2020, Rowcliffe et al. 2016)
 ###################################################################################################################
 library(trappingmotion)
 
-data.speed <- subset(data, Behaviour != "Curiosity")
-
-# Remove NAs
-data.speed <- subset(data.speed, Speed.m.s!="NA"); data.speed$Speed.m.s <- as.numeric(as.character(data.speed$Speed.m.s))
-
-# Explore speed distribution. Sometimes it is necessary to remove extreme-low values
-#summary(data.speed$Speed.m.s); hist(data.speed$Speed.m.s, breaks=30)
-boxplot(data.speed$Speed.m.s)
-sort(data.speed$Speed.m.s)
-data.speed <- subset(data.speed, Speed.m.s > 0.01)
-data.speed <- subset(data.speed, Speed.m.s < 4)
+data.speed <- subset(data, Behaviour != "Curiosity") # discard animals that react to the camera
+data.speed <- subset(data.speed, Speed.m.s!="NA"); data.speed$Speed.m.s <- as.numeric(as.character(data.speed$Speed.m.s)) # Remove NAs
 
 identbhvs(data.speed$Speed.m.s) # identify movement states (see Palencia et al. 2021 - Methods Ecol. Evol.)
-table(behav_class$behaviour)
 meanspeed(behav_class) # average movement speed of each state
 
 ###################################################################################################################################

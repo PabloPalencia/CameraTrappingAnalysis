@@ -105,10 +105,10 @@ dayrange(act=mod1@act[1], act_se=mod1@act[2], speed_data) #day range (daily dist
 The day range estimated is 1.37 km per day (SE=0.1), which means that, in average, each fallow deer in the population travels 1.37km per day.
 
 ## 3.2 Detection zone
-To estimate effective detecion zone (are effectively monitored by cameras), we will follow the procedure described by Rowcliffe et al. (2011) - Methods Ecol. Evol. 2(5):465-476. These procedure borrows from distance sampling theory (see Buckland et al. 2001 for further details), and it is needed to record the position (distance and angle relative to the camera) where the fallow deers are first detected.
+To estimate effective detecion zone (are effectively monitored by cameras), we will follow the procedure described by Rowcliffe et al. (2011) - Methods Ecol. Evol. 2(5):465-476. These procedure borrows from distance sampling theory (see Buckland et al. 2001 for further details), and it is needed to record the position (distance and angle relative to the camera) where the fallow deers are first detected.I also recommend to have a look to Hofmeester et al. 2017 - Remote Sens. Ecol. Conserv. 3(2):81-89 for practical and simple method to estimate detection zone when working with camera traps. 
 
 ### 3.2.1 Radius
-To estimate effective detection radiuswe will use the column "Dist_det", which include the distance -in meters- between animals and cameras in the first photo of each sequence. When more than one animal appeared in the first photo, we recorded the distance to the closer one. We will apply a point-transect distance sampling. Should be noted that advanced models can be considered by including covariates as sampling point or vegetation cover , betweeen others. 
+To estimate effective detection radius we will use the column "Dist_det", which include the distance -in meters- between animals and cameras in the first photo of each sequence. When more than one animal appeared in the first photo, we recorded the distance to the closer one. We will apply a point-transect distance sampling. Should be noted that advanced models can be considered by including covariates as sampling point or vegetation cover, betweeen others. 
 
 ```{r}
 data_dz_r<-subset(data, Dist_det >= 0 ) # selecting data to estimate effective detection radius
@@ -124,7 +124,7 @@ hr_cos0 <- ds(data_dz_r$Dist_det, transect = "point", key="hr", adjustment = "co
 ```
 Here I included just two models as example, but should be tested as minimun all the combinations between 'half-normal' and 'hazard-rate' functions, 'cos', 'herm' and 'poly' adjustments, and orders 0 and 2.
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 # half-normal
 hn_cos2 <- ds(data_dz_r$Dist_det, transect = "point", key="hn", adjustment = "cos", order = 2, truncation=w_rad)
 hn_herm0 <- ds(data_dz_r$Dist_det, transect = "point", key="hn", adjustment = "herm", order = 0, truncation=w_rad)
@@ -138,16 +138,99 @@ hr_herm2 <- ds(data_dz_r$Dist_det, transect = "point", key="hr", adjustment = "h
 hr_poly0 <- ds(data_dz_r$Dist_det, transect = "point", key="hr", adjustment = "poly", order = 0, truncation=w_rad)
 hr_poly2 <- ds(data_dz_r$Dist_det, transect = "point", key="hr", adjustment = "poly", order = 2, truncation=w_rad)
 ```
-After testing all these models
+After testing all these models, we will select the best one on the basis of AIC:
+
 ```{r}
 #model comparison
 AIC(hn_cos0, hn_cos2, hn_herm0, hn_herm2, hn_poly0, hn_poly2, hr_cos0, hr_herm0, hr_herm2, hr_poly0, hr_poly2)
 
 # select best model
-# mind the fact that if your data is spiked at zero, you have to be carefoul with the hazard-rate model (details in Buckland et al. 2001)
-best_modRad <- hr_cos0
+# (mind the fact that if your data is spiked at zero, you have to be carefoul with the hazard-rate model (details in Buckland et al. 2001))
+best_modRad <- hr_cos0 # AIC 413.44
+
+# Estimating effective detection radius and (SE)
+EfecRad <- EDRtransform(best_modRad)
+
+EfecRad$EDR # mean (m)
+EfecRad$se.EDR # SE (m)
+
 ```
 
+```{r, echo=FALSE, fig.keep='last', fig.cap='**Figure 4**: Detection radius plots'}
+
+# Plots 
+par(mfrow=c(1,2))
+plot(best_modRad, main="Best model", xlab="Radius (m)",
+     showpoints=FALSE, lwd=3, xlim=c(0, 10))
+plot(best_modRad, main="Best model", xlab="Radius (m)", pdf=TRUE,
+     showpoints=FALSE, lwd=3, xlim=c(0, 10))
+
+```
+Effective detection radius (**Fig. 4**) is 4.83m (SE=0.88) which is consistent with previous studies (e.g. Hofmeester et al. 2017 - Remote Sens. Ecol. Conserv. 3(2):81-89).
+
 ### 3.2.2 Angle
+To estimate effective detection angle we will use the column "Angle_det", which include the angle -in degrees- in the first photo of each sequence. When more than one animal appeared in the first photo, we recorded the angle to the closer one.
+We considered angle=0 in the centrer of the field of view, and we assumed that detection zone is symmetric
+We will proceed in a similar way than when estimating radius. Now, we apply a line-transect distance sampling. Should be noted that advanced models can be considered by including covariates as sampling point or vegetation cover, betweeen others.
+
+```{r}
+data_dz_ang<-subset(data, Ang_det != "NA" ) # selecting data to estimate effective detection angle
+
+data_dz_ang$Ang_rad <- abs(data_dz_ang$Ang_det*0.0174533) # transform degrees to radians
+FOV <- 42 # field of view of the cameras (degrees)
+w_ang <- FOV/2*0.0174533 # truncation angle (in radians)
+
+# half-normal
+hn_cos0Ang <- ds(data_dz_ang$Ang_rad, transect = "line", key="hn", adjustment = "cos", order = 0, truncation=w_ang) 
+
+#hazard-rate
+hr_cos0Ang <- ds(data_dz_ang$Ang_rad, transect = "line", key="hr", adjustment = "cos", order = 0, truncation=w_ang) 
+
+```
+Again, all the combinations between 'half-normal' and 'hazard-rate' functions, 'cos', 'herm' and 'poly' adjustments, and orders 0 and 2 should be tested.
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+# half-normal
+hn_cos2Ang <- ds(data_dz_ang$Ang_rad, transect = "line", key="hn", adjustment = "cos", order = 2, truncation=w_ang)
+hn_herm0Ang <- ds(data_dz_ang$Ang_rad, transect = "line", key="hn", adjustment = "herm", order = 0, truncation=w_ang)
+hn_herm2Ang <- ds(data_dz_ang$Ang_rad, transect = "line", key="hn", adjustment = "herm", order = 2, truncation=w_ang)
+hn_poly0Ang <- ds(data_dz_ang$Ang_rad, transect = "line", key="hn", adjustment = "poly", order = 0, truncation=w_ang)
+hn_poly2Ang <- ds(data_dz_ang$Ang_rad, transect = "line", key="hn", adjustment = "poly", order = 2, truncation=w_ang)
+
+#hazard-rate
+hr_cos2Ang <- ds(data_dz_ang$Ang_rad, transect = "line", key="hr", adjustment = "cos", order = 2, truncation=w_ang)
+hr_herm0Ang <- ds(data_dz_ang$Ang_rad, transect = "line", key="hr", adjustment = "herm", order = 0, truncation=w_ang)
+hr_herm2Ang <- ds(data_dz_ang$Ang_rad, transect = "line", key="hr", adjustment = "herm", order = 2, truncation=w_ang)
+hr_poly0Ang <- ds(data_dz_ang$Ang_rad, transect = "line", key="hr", adjustment = "poly", order = 0, truncation=w_ang)
+hr_poly2Ang <- ds(data_dz_ang$Ang_rad, transect = "line", key="hr", adjustment = "poly", order = 2, truncation=w_ang)
+```
+After testing all these models, we will select the best one on the basis of AIC:
+
+```{r}
+#model comparison
+AIC(hn_cos0Ang, hn_cos2Ang, hn_herm0Ang, hn_herm2Ang, hn_poly0Ang, hn_poly2Ang, hr_cos0Ang, hr_cos2Ang, hr_herm0Ang, hr_herm2Ang, hr_poly0Ang, hr_poly2Ang)
+
+
+# select best model
+# (mind the fact that if your data is spiked at zero, you have to be carefoul with the hazard-rate model (details in Buckland et al. 2001))
+best_modAng <- hr_cos0Ang  # AIC 413.44
+
+# Estimating effective detection radius and (SE)
+summary_ang<- summary(best_modAng$ddf)
+
+EfecAng_mean <- summary_ang$average.p*w_ang # mean (radians)
+EfecAng_SE <-  summary_ang$average.p.se*w_ang # SE (radians)
+
+```
+
+```{r, echo=FALSE, fig.keep='last', fig.cap='**Figure 5**: Detection angle plot'}
+
+# Plots 
+par(mfrow=c(1,1))
+plot(best_modAng, main="Best model", xlab="Angle (rad)",
+     showpoints=FALSE, lwd=3, xlim=c(0, w_ang))
+
+```
+Finally, and just to clarify, the interpretation of effective detection radius or angle is the threshold value at which the expected number of missed within is equal to the expected number detected beyond. 
 
 ## 3.3 Encounter rate
