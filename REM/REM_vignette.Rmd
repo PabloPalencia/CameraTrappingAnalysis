@@ -16,7 +16,7 @@ knitr::opts_knit$set(root.dir = 'D:/rprojects/CameraTrappingAnalysis/REM/Data')
 The Random Encounter Model (**REM**) is a method for estimating animal density from camera trap data without the need for individual recognition (Rowcliffe et al., 2008 - J. App. Ecol. 45: 1228-1236). Over the last years it has been used for a wide range of unmarked species (Cusack et al., 2015 - J. Wild. Manag. 79(6): 1014-1021; ENETWILD-consortium et al., 2019 - EFSA Supporting Publications - 16(9); Pfeffer et al., 2018 - Remote Sens. Ecol. Conserv. 2:84-94; Zero et al., 2013 - Oryx 47(3): 410-419).
 
 ## 1.2 Practical exercise
-Here, I'm going to estimate population density of fallow deer (*Dama dama*) population samped with 30 camera traps. (Why fallow deer? Easy, is my favourite species, see **Figure 1**).
+Here, I'm going to estimate population density of fallow deer (*Dama dama*) population samped with 30 camera traps. (Why fallow deer? Easy, is my favourite species, see **Fig. 1**).
 
 ![**Figure 1**: Fallow deer picture](D:/rprojects/CameraTrappingAnalysis/REM/Data/FallowDeerPhoto.jpg)
 
@@ -38,10 +38,10 @@ source("REM_functions.R") # importing some key functions to run the analysis
 
 
 # Packages required to run the analyses
-library(activity) # to estimate activity pattern and day range
-library(trappingmotion) # to estimate speed and day range
-library(Distance) # to estimate detection zone
-library(dplyr) # to work with dataframes
+library(activity) # to estimate activity pattern and day range (available on CRAN)
+library(trappingmotion) # to estimate speed and day range (available on github https://github.com/PabloPalencia/trappingmotion)
+library(Distance) # to estimate detection zone (available on CRAN)
+library(dplyr) # to work with dataframes (available on CRAN)
 
 ```
 
@@ -54,7 +54,7 @@ Day range (average daily distance travelled by and individual) is a parameter th
 ### 3.1.1 Activity
 To estimate activity, we will use the columns "G_size" and "H_first". "G_size" includes the number of animals observed per group, and "H_first" includes the time of the first photo of each group.(Adittionally, to avoid the bias caused by shorter detection distances at night (see Rowcliffe et al. 2014 Methods Ecol. Evol, 5(11): 1170-1179), we just considered for activity estimate sequences closer than 5m to the cameras -i.e. "Interval.min == 1 | 2").
 
-```{r, fig.width=10, fig.height=6}
+```{r, fig.width=10, fig.height=6, fig.cap='**Figure 2**: Activity pattern'}
 data.acti <- as.data.frame(data)
 
 # Estimating radian time of day
@@ -74,11 +74,80 @@ mod1 <- fitact(activityRES, sample="data")
 # Plot activity patterns
 par(mfrow=c(1,1)); plot(mod1)
 
-mod1@act[1] # mean activity rate
-mod1@act[2] # SE activity rate
+mod1@act[1] # mean activity level
+mod1@act[2] # SE activity level
 
 ```
 
+Activity results evidenced two peaks of activity during sunrise and sunset **Fig. 2**, which is expected for ungulates. Activity level of 0.23 can be interpreted as the population spent acitive (0.23 x 24) 5.5 hours per day.  
 
-### 3.2.2 Speed
+### 3.1.2 Speed
+To estimate speed, we will use the column "Speed.m.s", which include speed estimations in m/s of those animals that did not react to the camera traps. Using the package *trappingmotion* we will follow the procedure described by Palencia et al. (2021). Briefly, we will identify different movement behaviours on the basis of the speeds (**Fig. 3**); and for each behaviour, we will estimate the average speed. Those sequences in which animals react to the camera trap cannot be considered for speed estimation (Rowcliffe et al. 2016 - Remote Sens. Ecol. Conserv. 2:84-94).
+
+```{r, warning=FALSE, message=FALSE, fig.keep='last', fig.cap='**Figure 3**: Movement behaviours identified'}
+
+data.speed <- subset(data, Behaviour != "Curiosity") # discard animals that react to the camera
+data.speed <- subset(data.speed, Speed.m.s!="NA"); data.speed$Speed.m.s <- as.numeric(as.character(data.speed$Speed.m.s)) # Remove NAs
+
+identbhvs(data.speed$Speed.m.s) # identify movement state
+meanspeed(behav_class) # average movement speed of each state
+
+```
+
 ## 3.1 Day range
+Finally, day range is estimated as the sum of the product of the mean speed and the proportion of the activity level associated with each behaviour.
+```{r}
+
+dayrange(act=mod1@act[1], act_se=mod1@act[2], speed_data) #day range (daily distance travelled)
+
+```
+
+The day range estimated is 1.37 km per day (SE=0.1), which means that, in average, each fallow deer in the population travels 1.37km per day.
+
+## 3.2 Detection zone
+To estimate effective detecion zone (are effectively monitored by cameras), we will follow the procedure described by Rowcliffe et al. (2011) - Methods Ecol. Evol. 2(5):465-476. These procedure borrows from distance sampling theory (see Buckland et al. 2001 for further details), and it is needed to record the position (distance and angle relative to the camera) where the fallow deers are first detected.
+
+### 3.2.1 Radius
+To estimate effective detection radiuswe will use the column "Dist_det", which include the distance -in meters- between animals and cameras in the first photo of each sequence. When more than one animal appeared in the first photo, we recorded the distance to the closer one. We will apply a point-transect distance sampling. Should be noted that advanced models can be considered by including covariates as sampling point or vegetation cover , betweeen others. 
+
+```{r}
+data_dz_r<-subset(data, Dist_det >= 0 ) # selecting data to estimate effective detection radius
+
+w_rad <- 10 # truncation distance (in meters)
+
+# half-normal
+hn_cos0 <- ds(data_dz_r$Dist_det, transect = "point", key="hn", adjustment = "cos", order = 0, truncation=w_rad) 
+
+#hazard-rate
+hr_cos0 <- ds(data_dz_r$Dist_det, transect = "point", key="hr", adjustment = "cos", order = 0, truncation=w_rad) 
+
+```
+Here I included just two models as example, but should be tested as minimun all the combinations between 'half-normal' and 'hazard-rate' functions, 'cos', 'herm' and 'poly' adjustments, and orders 0 and 2.
+
+```{r, echo=FALSE}
+# half-normal
+hn_cos2 <- ds(data_dz_r$Dist_det, transect = "point", key="hn", adjustment = "cos", order = 2, truncation=w_rad)
+hn_herm0 <- ds(data_dz_r$Dist_det, transect = "point", key="hn", adjustment = "herm", order = 0, truncation=w_rad)
+hn_herm2 <- ds(data_dz_r$Dist_det, transect = "point", key="hn", adjustment = "herm", order = 2, truncation=w_rad)
+hn_poly0 <- ds(data_dz_r$Dist_det, transect = "point", key="hn", adjustment = "poly", order = 0, truncation=w_rad)
+hn_poly2 <- ds(data_dz_r$Dist_det, transect = "point", key="hn", adjustment = "poly", order = 2, truncation=w_rad)
+
+#hazard-rate
+hr_herm0 <- ds(data_dz_r$Dist_det, transect = "point", key="hr", adjustment = "herm", order = 0, truncation=w_rad)
+hr_herm2 <- ds(data_dz_r$Dist_det, transect = "point", key="hr", adjustment = "herm", order = 2, truncation=w_rad)
+hr_poly0 <- ds(data_dz_r$Dist_det, transect = "point", key="hr", adjustment = "poly", order = 0, truncation=w_rad)
+hr_poly2 <- ds(data_dz_r$Dist_det, transect = "point", key="hr", adjustment = "poly", order = 2, truncation=w_rad)
+```
+After testing all these models
+```{r}
+#model comparison
+AIC(hn_cos0, hn_cos2, hn_herm0, hn_herm2, hn_poly0, hn_poly2, hr_cos0, hr_herm0, hr_herm2, hr_poly0, hr_poly2)
+
+# select best model
+# mind the fact that if your data is spiked at zero, you have to be carefoul with the hazard-rate model (details in Buckland et al. 2001)
+best_modRad <- hr_cos0
+```
+
+### 3.2.2 Angle
+
+## 3.3 Encounter rate
