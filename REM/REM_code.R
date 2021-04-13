@@ -44,11 +44,8 @@ df_coord <- read.table("Coordinates.txt", sep = ";", dec=".", header=TRUE, as.is
 # col12: Dist_det: Distance of detection. Distance between the animal and the camera in the first photo of each sequence
 # col13: Ang_det: Angle of detection. Angle of detection in the first photo of each sequence. Expresed in decimal grades
 # col14: Behaviour: Observed behaviour for each sequence. See details in Palencia et al. 2019
-# col15: 1: Individuals cross the midline of the field of view of the camera-trap. 0: Individuals don't cross the midline of the field of view of the camera-trap.
-# col16: Notes: Observations 
 
 ### FUNCTIONS (not included in packages. Developed by M. Rowcliffe & St. Andrews University)
-
 source("REM_functions.R") # importing some key functions to run the analysis
 
 
@@ -180,8 +177,6 @@ EfecAng_SE <-  summary_ang$average.p.se*w_ang# SE
 par(mfrow=c(1,1))
 plot(best_modAng, main="Best model", xlab="Angle (rad)",
      showpoints=FALSE, lwd=3, xlim=c(0, w_ang))
-
-
 
 ###################################################################################################################################
 ### TRAPPING-RATE
