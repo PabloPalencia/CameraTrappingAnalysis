@@ -24,7 +24,7 @@ getwd()
 # Import the .txt table into R when the data are separated by ";"
 
 # Load dataframes
-data <- read.table("Data.txt", sep = ";", dec=".", header=TRUE, as.is=TRUE) # parameters dataframe
+dataREM <- read.table("Data.txt", sep = ";", dec=".", header=TRUE, as.is=TRUE) # parameters dataframe
 operat <- read.table("Operativity.txt", sep = ";", dec=".", header=TRUE, as.is=TRUE) # operatity matrix (to estimate survey effort)
 df_coord <- read.table("Coordinates.txt", sep = ";", dec=".", header=TRUE, as.is=TRUE) # camera trap locations (plots, maps etc.)
 
@@ -56,7 +56,7 @@ source("REM_functions.R") # importing some key functions to run the analysis
 ## ACTIVITY
 ###################################################################################################################################
 library(activity)
-data.acti <- as.data.frame(data)
+data.acti <- as.data.frame(dataREM)
 
 # Estimating radian time of day
 data.acti$T_sec2 <- as.numeric(strptime(data.acti$H_first, format="%H:%M:%S") - as.POSIXct(format(Sys.Date())), units="secs")
@@ -80,7 +80,7 @@ par(mfrow=c(1,1)); plot(mod1); show(mod1)
 ###################################################################################################################
 library(trappingmotion)
 
-data.speed <- subset(data, Behaviour != "Curiosity") # discard animals that react to the camera
+data.speed <- subset(dataREM, Behaviour != "Curiosity") # discard animals that react to the camera
 data.speed <- subset(data.speed, Speed.m.s!="NA"); data.speed$Speed.m.s <- as.numeric(as.character(data.speed$Speed.m.s)) # Remove NAs
 
 identbhvs(data.speed$Speed.m.s) # identify movement states (see Palencia et al. 2021 - Methods Ecol. Evol.)
@@ -98,8 +98,8 @@ dayrange(act=mod1@act[1], act_se=mod1@act[2], speed_data) #day range (daily dist
 
 library(Distance)
 
-data_dz_r<-subset(data, Dist_det >= 0 )
-data_dz_ang<-subset(data, Ang_det != "NA" )
+data_dz_r<-subset(dataREM, Dist_det >= 0 )
+data_dz_ang<-subset(dataREM, Ang_det != "NA" )
 
 
 # Efective Detection Radius 
@@ -187,7 +187,7 @@ plot(best_modAng, main="Best model", xlab="Angle (rad)",
 ### TRAPPING-RATE
 ###################################################################################################################################
 
-data.dens <- as.data.frame(data)
+data.dens <- as.data.frame(dataREM)
 #data.dens <- subset(data.dens, Point_ID != 48 & Point_ID != 100)# to remove some points
 
 tm <- sum(colSums(operat, na.rm = FALSE, dims = 1))- sum(operat$CAM) # Survey effort (camera days)
@@ -203,6 +203,26 @@ operat$tr <- operat$Freq/operat$oper_days
 library(dplyr)
 tr<-operat[,c("Freq","oper_days")] # Selecting columns
 tr <- subset(tr, oper_days > 0) # remove CT that doesnt work propoerly
+
+#Plot encounter rate
+df_coord$ER <- tr$Freq # add encounter rate to coordinates dataframe
+
+library(ggplot2)
+ggplot(data=df_coord) + 
+  aes(x=Long, y=Lat, size=ER) + 
+  geom_point(alpha=1, shape=16, col='blue') +
+  scale_size(breaks = c(0, 1, 5, 10, 20, 50), range = c(1, 20))+
+  ylab("Latitude (m)") +
+  xlab("Longitude (m)") +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        panel.border = element_rect(colour = "black", fill=NA, size=1),
+        legend.position = "none",
+        axis.title.y = element_text(color="black", size=20, face="bold"),
+        axis.title.x = element_text(color="black", size=20, face="bold"),
+        axis.text.y = element_text(size=rel(2)),
+        axis.text.x = element_text(size=rel(2)))
 
 ###################################################################################################################################
 ### DENSITY
@@ -221,6 +241,6 @@ density<-bootTRD(tr$Freq, tr$oper_days, param, paramse); density
 
 # Saving results
 results <- data.frame(seq, tm, DR, DR_se, EfecRad$EDR, EfecRad$se.EDR, EfecAng_mean*2, EfecAng_SE*2, density[,1], density[,2])
-dimnames(results) <- list("Value", c("seq","tm", "dr(km/day)","dr_se(km/day)", "r(m)", "r_se(m)", "ang(rad)", "ang_se(rad)", "d(ind/km2)", "d_se(ind/km2)")); View(results)
+dimnames(results) <- list("Value", c("y(seq.)","t (days)", "s(km/day)","s_se(km/day)", "r(m)", "r_se(m)", "ang(rad)", "ang_se(rad)", "d(ind/km2)", "d_se(ind/km2)")); View(results)
 #write.table(results, "ResultsREM_MARTESsp_FITO.txt", sep=";", row.names = FALSE)
 
