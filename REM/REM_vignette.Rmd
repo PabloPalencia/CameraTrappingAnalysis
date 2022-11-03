@@ -13,18 +13,18 @@ knitr::opts_knit$set(root.dir = 'D:/rprojects/CameraTrappingAnalysis/REM/Data')
 # 1. Introduction
 
 ## 1.1 REM background
-The Random Encounter Model (**REM**) is a method for estimating animal density from camera trap data without the need for individual recognition (Rowcliffe et al., 2008 - J. App. Ecol. 45: 1228-1236). Over the last years it has been used for a wide range of unmarked species (Cusack et al., 2015 - J. Wild. Manag. 79(6): 1014-1021; ENETWILD-consortium et al., 2019 - EFSA Supporting Publications - 16(9); Pfeffer et al., 2018 - Remote Sens. Ecol. Conserv. 2:84-94; Zero et al., 2013 - Oryx 47(3): 410-419). Most of these studies highlighted the potencial of REM as a promising method to monitor unmarked species.
+The Random Encounter Model (**REM**) is a method for estimating animal density from camera trap data without the need for individual recognition (Rowcliffe et al., 2008 - J. App. Ecol. 45: 1228-1236). Over the last years it has been used for a wide range of unmarked species (Cusack et al., 2015 - J. Wild. Manag. 79(6): 1014-1021; ENETWILD-consortium et al., 2019 - EFSA Supporting Publications - 16(9); Pfeffer et al., 2018 - Remote Sens. Ecol. Conserv. 2:84-94; Palencia et al., 2022 -  Remote Sens. Ecol. Conserv. 8(5): 670-682; Zero et al., 2013 - Oryx 47(3): 410-419). Most of these studies highlighted the potential of REM as a promising method to monitor unmarked species.
 
-Briefly, the REM is based on modelling the process of random encountres between animals and cameras, and accounting for all the variables that affect the encounter rate (animal movement speed and camera's detection viewshed). 
+Briefly, the REM is based on modelling the process of random encounters between animals and cameras, and accounting for all the variables that affect the encounter rate (animal movement speed and camera's detection zone). 
 
 REM equation:
 $$
 D = \frac{y}{t} \frac{\pi}{v·r·(2+ \alpha) }
 $$
-in which *y* is the number of encounters (i.e. number of independent photographic sequences), *t* is total camera survey effort, *v* is the average distance travelled by an individual during a day (day range), and *r* and $\alpha$ are the radius and angle of the camera traps detection zone, respectively. 
+in which *y* is the number of encounters (i.e. number of individuals entered detection zone), *t* is total camera survey effort, *v* is the average distance travelled by an individual during a day (day range), and *r* and $\alpha$ are the radius and angle of the camera traps detection zone, respectively. 
 
 ## 1.2 Practical exercise
-Here, I'm going to estimate population density of fallow deer (*Dama dama*) population samped with 30 camera traps. (Why fallow deer? Easy, is my favourite species, see **Fig. 1**). Survey design consisted in a systematic design with random origin; concretely cameras were deployed at the intesection of a grid with 2km spacing.
+Here, I'm going to estimate population density of fallow deer (*Dama dama*) population samped with 30 camera traps. (Why fallow deer? Easy, is my favorite species, see **Fig. 1**). Survey design consisted in a systematic design with random origin; concretely cameras were deployed at the intersection of a grid with 2km spacing.
 
 ![**Figure 1**: Fallow deer picture](D:/rprojects/CameraTrappingAnalysis/REM/Data/FallowDeerPhoto.jpg)
 
@@ -33,8 +33,8 @@ Should be noted that all the necessary parameters to apply REM (i.e. day range, 
 Finally, in spite of I'm going to use other packages, should be noted that *remBoot* R package implemet REM calculations in R (Caravaggi, 2017 - J. Open Source Softw.- 2(10):176).
 
 # 2. Importing dataframes and functions
-Three dataframes are needed to run the analysis: i) the raw data of day range, detection zone and encounter rate, ii) the operativity matrix (information about camera traps functionality), and iii) camera trap coordinates (just for plots and exploratory analysis). 
-Adittionally, we will need to import a couple of functions that are not included in an R package (these functions were devoloped by M. Rowcliffe and Distance Sampling folks from St. Andrews University).
+Three data frames are needed to run the analysis: i) the raw data of day range, detection zone and encounter rate, ii) the operativity matrix (information about camera traps functionality), and iii) camera trap coordinates (just for plots and exploratory analysis). 
+Additionally, we will need to import a couple of functions that are not included in an R package (these functions were developed by M. Rowcliffe and Distance Sampling folks from St. Andrews University).
 
 ```{r, warning=FALSE, message=FALSE}
 # Load dataframes
@@ -51,17 +51,17 @@ library(activity) # to estimate activity pattern and day range (available on CRA
 library(trappingmotion) # to estimate speed and day range (available on github https://github.com/PabloPalencia/trappingmotion)
 library(Distance) # to estimate detection zone (available on CRAN)
 library(dplyr) # to work with dataframes (available on CRAN)
-library(ggplot2) # to plot encounter rates (avilable on CRAN)
+library(ggplot2) # to plot encounter rates (available on CRAN)
 ```
 
 # 3. Analysis
 As described above, all the parameters needed to apply REM will be derived from camera trap data (*dataREM* dataframe). I have included a specific section for each parameter.
 
 ## 3.1 Day range
-Day range is a parameter that relies on movement and behaviour. Recent studies have described a porcedure to estimate day range from camera trapping data (Palencia et al. 2021 - Methods Ecol. Evol. doi: 10.1111/2041-210X.13609; Rowcliffe et al. 2016 - Remote Sens. Ecol. Conserv. 2:84-94). Briefly, day range is estimated as the product of speed (average speed of travel while active) and activity rate (proportion of day that the population spent active).
+Day range is a parameter that relies on animal movement. Recent studies have described a procedure to estimate day range from camera trapping data (Palencia et al. 2021 - Methods Ecol. Evol. 12(7):1201-1212; Rowcliffe et al. 2016 - Remote Sens. Ecol. Conserv. 2:84-94). Briefly, day range is estimated as the product of speed (average speed of travel while active) and activity rate (proportion of day that the population spent active).
 
 ### 3.1.1 Activity
-To estimate activity, we will use the columns "G_size" and "H_first". "G_size" includes the number of animals observed per group, and "H_first" includes the time of the first photo of each group.(Adittionally, to avoid the bias caused by shorter detection distances at night (see Rowcliffe et al. 2014 Methods Ecol. Evol, 5(11): 1170-1179), we are only going to considered for activity estimate sequences closer than 5m to the cameras -i.e. "Interval.min == 1 | 2").
+To estimate activity, we will use the columns "G_size" and "H_first". "G_size" includes the number of animals observed per group, and "H_first" includes the time of the first photo of each group.(Adittionally, to avoid the bias caused by shorter detection distances at night (see Palencia et al. 2022 J. Zool. 316(3): 197-208; Rowcliffe et al. 2014 Methods Ecol. Evol, 5(11): 1170-1179), we are only going to considered for activity estimate sequences closer than 5m to the cameras -i.e. "Interval.min == 1 | 2").
 
 ```{r, fig.width=10, fig.height=6, fig.cap='**Figure 2**: Activity pattern'}
 data.acti <- as.data.frame(dataREM)
@@ -117,7 +117,7 @@ The day range estimated is 1.37 km/day (SE=0.1), which means that, in average, e
 To estimate effective detecion zone (area effectively monitored by cameras), we will follow the procedure described by Rowcliffe et al. (2011) - Methods Ecol. Evol. 2(5):465-476. These procedure borrows from distance sampling theory (see Buckland et al. 2001 for further details), and for that it is needed to record the position (distance and angle relative to the camera) where the fallow deers are first detected. I also recommend to have a look to Hofmeester et al. 2017 - Remote Sens. Ecol. Conserv. 3(2):81-89 for practical and simple method to estimate detection zone when working with camera traps. 
 
 ### 3.2.1 Radius
-To estimate effective detection radius we will use the column "Dist_det", which include the distance -in meters- between animals and cameras in the first photo of each sequence. When more than one animal appeared in the first photo, we recorded the distance to the closer one. We will apply a point-transect distance sampling. Should be noted that advanced models can be considered by including covariates as sampling point or vegetation cover, betweeen others. 
+To estimate effective detection radius we will use the column "Dist_det", which includes the distance -in meters- between animals and cameras when the animals enter. We will apply a point-transect distance sampling. Should be noted that advanced models can be considered by including covariates as sampling point or vegetation cover etc. But the ones tested here should fit the vast majority of the scenarios. 
 
 ```{r}
 data_dz_r<-subset(dataREM, Dist_det >= 0 ) # selecting data to estimate effective detection radius
@@ -178,8 +178,8 @@ plot(best_modRad, main="Best model", xlab="Radius (m)", pdf=TRUE,
 Effective detection radius (**Fig. 4**) is 4.83m (SE=0.88) which is consistent with previous studies (e.g. Hofmeester et al. 2017 - Remote Sens. Ecol. Conserv. 3(2):81-89).
 
 ### 3.2.2 Angle
-To estimate effective detection angle we will use the column "Angle_det", which include the angle -in degrees- in the first photo of each sequence. When more than one animal appeared in the first photo, we recorded the angle to the closer one.
-We considered angle=0 in the centrer of the field of view, and we assumed that detection zone is symmetric
+To estimate effective detection angle we will use the column "Angle_det", which include the angle -in degrees- when the individual enters. 
+We considered angle=0 in the center of the field of view, and we assumed that detection zone is symmetric
 We will proceed in a similar way than when estimating radius. Now, we apply a line-transect distance sampling. Should be noted that advanced models can be considered by including covariates as sampling point or vegetation cover, betweeen others.
 
 ```{r}
@@ -244,9 +244,9 @@ plot(best_modAng, main="Best model", xlab="Angle (rad)",
 Finally, and just to clarify, the interpretation of effective detection radius (or angle) is the threshold value at which the expected number of missed within is equal to the expected number detected beyond. 
 
 ## 3.3 Encounter rate
-Finally, we will estimate encounter rate. In our dataframe (*dataREM*), each time that an individuals enters in the detecion zone (sequence) we added a row. For that, I considered individuals as the unit of observation. Considering that, we will aggregate the number of rows per each "Point_ID" which is our camera trap ID. Adittionally, we will estimate the sampling effort of each camera trap using the information provided in (*df_coord*). 
+Finally, we will estimate encounter rate. In our dataframe (*dataREM*), each time that an individuals enters in the detecion zone (sequence) we added a row. Individuals were considered as the unit of observation. Considering that, we will aggregate the number of rows per each "Point_ID" which is our camera trap ID. Additionally, we will estimate the sampling effort of each camera trap using the information provided in (*operat*). 
 
-In summary, we need a dataframe (here *tr*) in wich one column represent the *y* parameter (here *Freq*) and another column represent *t* parameter (here *oper_days*) of the REM equation.
+In summary, we need a dataframe (here *tr*) in which one column represent the *y* parameter (here *Freq*) and another column represent *t* parameter (here *oper_days*) of the REM equation.
 
 ```{r, echo=FALSE, fig.keep='last', fig.cap='**Figure 6**: Encounter rate map. The areas of the blue circles are proportional to the encounter rates'}
 

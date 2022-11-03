@@ -5,14 +5,14 @@
 ##            REM            ##
 ##                           ##
 ##       Pablo Palencia      ##
-##        26/03/2021         ##
+##        03/11/2022         ##
 ##                           ##
 ###############################
 
 
 # R code for implement Random Encounter Model (REM), a method to calculate populations densities from camera-trap 
 # data for species which do no exhibit individually-indentifiable markings (Rowcliffe et al. 2008). The code also
-# includes functions to estimate travel speed (Palencia et al. 2019, Rowcliffe et al. 2016), the activity value 
+# includes functions to estimate travel speed (Palencia et al. 2021, Rowcliffe et al. 2016), the activity value 
 # (Rowcliffe et al 2014) and standard error of obtained densities values.
 
 # Working directory
@@ -102,27 +102,23 @@ data_dz_ang<-subset(dataREM, Ang_det != "NA" )
 # Efective Detection Radius 
 w_rad <- 10
 # half-normal
-hn_cos0 <- ds(data_dz_r$Dist_det, transect = "point", key="hn", adjustment = "cos", order = 0, truncation=w_rad) 
-hn_cos2 <- ds(data_dz_r$Dist_det, transect = "point", key="hn", adjustment = "cos", order = 2, truncation=w_rad)
-hn_herm0 <- ds(data_dz_r$Dist_det, transect = "point", key="hn", adjustment = "herm", order = 0, truncation=w_rad)
-hn_herm2 <- ds(data_dz_r$Dist_det, transect = "point", key="hn", adjustment = "herm", order = 2, truncation=w_rad)
-hn_poly0 <- ds(data_dz_r$Dist_det, transect = "point", key="hn", adjustment = "poly", order = 0, truncation=w_rad)
-hn_poly2 <- ds(data_dz_r$Dist_det, transect = "point", key="hn", adjustment = "poly", order = 2, truncation=w_rad)
+hn <- ds(data_dz_r$Dist_det, transect = "point", key="hn", adjustment = NULL, truncation=w_rad) 
+hn_cos <- ds(data_dz_r$Dist_det, transect = "point", key="hn", adjustment = "cos", nadj = 1, truncation=w_rad)
+hn_herm <- ds(data_dz_r$Dist_det, transect = "point", key="hn", adjustment = "herm", nadj = 1, truncation=w_rad)
+hn_poly <- ds(data_dz_r$Dist_det, transect = "point", key="hn", adjustment = "poly", nadj = 1, truncation=w_rad)
 
 #hazard-rate
-hr_cos0 <- ds(data_dz_r$Dist_det, transect = "point", key="hr", adjustment = "cos", order = 0, truncation=w_rad) 
-hr_cos2 <- ds(data_dz_r$Dist_det, transect = "point", key="hr", adjustment = "cos", order = 2, truncation=w_rad)
-hr_herm0 <- ds(data_dz_r$Dist_det, transect = "point", key="hr", adjustment = "herm", order = 0, truncation=w_rad)
-hr_herm2 <- ds(data_dz_r$Dist_det, transect = "point", key="hr", adjustment = "herm", order = 2, truncation=w_rad)
-hr_poly0 <- ds(data_dz_r$Dist_det, transect = "point", key="hr", adjustment = "poly", order = 0, truncation=w_rad)
-hr_poly2 <- ds(data_dz_r$Dist_det, transect = "point", key="hr", adjustment = "poly", order = 2, truncation=w_rad)
+hr <- ds(data_dz_r$Dist_det, transect = "point", key="hr", adjustment = NULL, truncation=w_rad) 
+hr_cos <- ds(data_dz_r$Dist_det, transect = "point", key="hr", adjustment = "cos", nadj = 1, truncation=w_rad)
+hr_herm <- ds(data_dz_r$Dist_det, transect = "point", key="hr", adjustment = "herm", nadj = 1, truncation=w_rad)
+hr_poly <- ds(data_dz_r$Dist_det, transect = "point", key="hr", adjustment = "poly", nadj = 1, truncation=w_rad)
 
 #model comparison
-AIC(hn_cos0, hn_cos2, hn_herm0, hn_herm2, hn_poly0, hn_poly2, hr_cos0, hr_herm0, hr_herm2, hr_poly0, hr_poly2)
+AIC(hn, hn_cos, hn_herm, hn_poly, hr, hr_cos, hr_herm, hr_poly)
 
 # select best model
 # mind the fact that if your data is spiked at zero, you have to be carefoul with the hazard-rate model (details in Buckland et al. 2001)
-best_modRad <- hr_cos0
+best_modRad <- hr
 
 # Estimating effective detection radius and (SE)
 EfecRad <- EDRtransform(best_modRad)
@@ -145,27 +141,28 @@ FOV <- 42 # field of view of the cameras (degrees)
 w_ang <- FOV/2*0.0174533
 
 # half-normal
-hn_cos0Ang <- ds(data_dz_ang$Ang_rad, transect = "line", key="hn", adjustment = "cos", order = 0, truncation=w_ang) 
-hn_cos2Ang <- ds(data_dz_ang$Ang_rad, transect = "line", key="hn", adjustment = "cos", order = 2, truncation=w_ang)
-hn_herm0Ang <- ds(data_dz_ang$Ang_rad, transect = "line", key="hn", adjustment = "herm", order = 0, truncation=w_ang)
-hn_herm2Ang <- ds(data_dz_ang$Ang_rad, transect = "line", key="hn", adjustment = "herm", order = 2, truncation=w_ang)
-hn_poly0Ang <- ds(data_dz_ang$Ang_rad, transect = "line", key="hn", adjustment = "poly", order = 0, truncation=w_ang)
-hn_poly2Ang <- ds(data_dz_ang$Ang_rad, transect = "line", key="hn", adjustment = "poly", order = 2, truncation=w_ang)
+hn_Ang <- ds(data_dz_ang$Ang_rad, transect = "line", key="hn", adjustment = NULL, truncation=w_ang) 
+hn_cosAng <- ds(data_dz_ang$Ang_rad, transect = "line", key="hn", adjustment = "cos", nadj = 1, truncation=w_ang)
+hn_hermAng <- ds(data_dz_ang$Ang_rad, transect = "line", key="hn", adjustment = "herm", nadj = 1, truncation=w_ang)
+hn_polyAng <- ds(data_dz_ang$Ang_rad, transect = "line", key="hn", adjustment = "poly", nadj = 1, truncation=w_ang)
 
 #hazard-rate
-hr_cos0Ang <- ds(data_dz_ang$Ang_rad, transect = "line", key="hr", adjustment = "cos", order = 0, truncation=w_ang) 
-hr_cos2Ang <- ds(data_dz_ang$Ang_rad, transect = "line", key="hr", adjustment = "cos", order = 2, truncation=w_ang)
-hr_herm0Ang <- ds(data_dz_ang$Ang_rad, transect = "line", key="hr", adjustment = "herm", order = 0, truncation=w_ang)
-hr_herm2Ang <- ds(data_dz_ang$Ang_rad, transect = "line", key="hr", adjustment = "herm", order = 2, truncation=w_ang)
-hr_poly0Ang <- ds(data_dz_ang$Ang_rad, transect = "line", key="hr", adjustment = "poly", order = 0, truncation=w_ang)
-hr_poly2Ang <- ds(data_dz_ang$Ang_rad, transect = "line", key="hr", adjustment = "poly", order = 2, truncation=w_ang)
+hr_Ang <- ds(data_dz_ang$Ang_rad, transect = "line", key="hr", adjustment = NULL, truncation=w_ang) 
+hr_cosAng <- ds(data_dz_ang$Ang_rad, transect = "line", key="hr", adjustment = "cos", nadj = 1, truncation=w_ang)
+hr_hermAng <- ds(data_dz_ang$Ang_rad, transect = "line", key="hr", adjustment = "herm", nadj = 1, truncation=w_ang)
+hr_polyAng <- ds(data_dz_ang$Ang_rad, transect = "line", key="hr", adjustment = "poly", nadj = 1, truncation=w_ang)
+
+#uniform
+uni_cosAng <- ds(data_dz_ang$Ang_rad, transect = "line", key="uni", adjustment = "cos", nadj = 1, truncation=w_ang)
+uni_hermAng <- ds(data_dz_ang$Ang_rad, transect = "line", key="uni", adjustment = "herm", nadj = 1, truncation=w_ang)
+uni_polyAng <- ds(data_dz_ang$Ang_rad, transect = "line", key="uni", adjustment = "poly", nadj = 1, truncation=w_ang)
 
 #model comparison
-AIC(hn_cos0Ang, hn_cos2Ang, hn_herm0Ang, hn_herm2Ang, hn_poly0Ang, hn_poly2Ang, hr_cos0Ang, hr_cos2Ang, hr_herm0Ang, hr_herm2Ang, hr_poly0Ang, hr_poly2Ang)
+AIC(hn_Ang, hn_cosAng, hn_hermAng, hn_polyAng, hr_Ang, hr_cosAng, hr_hermAng, hr_polyAng, uni_cosAng, uni_hermAng, uni_polyAng)
 
 # select best model
 # mind the fact that if your data is spiked at zero, you have to be carefoul with the hazard-rate model (details in Buckland et al. 2001)
-best_modAng <- hr_cos0Ang 
+best_modAng <- hr_Ang 
 
 # Estimating effective detection radius and (SE)
 summary_ang<- summary(best_modAng$ddf)
