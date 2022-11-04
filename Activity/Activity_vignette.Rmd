@@ -1,5 +1,5 @@
 ---
-title: '**Activity & camera trap vignette**'
+title: '**Activity vignette**'
 author: "Pablo Palencia"
 date: "`r Sys.Date()`"
 output:
@@ -8,14 +8,14 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_knit$set(root.dir = 'C:/rprojects/CameraTrappingAnalysis/Activity/Data')
+knitr::opts_knit$set(root.dir = 'C:/rprojects/CameraTrappingAnalysis/Activity')
 ```
 
 
 # 1. Background
 
-Getting activity patterns is one of the most habitual analysis from camera trap data. It is visual, intuitive and interesting. In addition, activity level (i.e. proportion of the day that the population spend in movement), is a basic parameter for lastly estimate other ecological parameters. 
-Here, I provide a simple example to estimate activity pattern and activity level (and its precision). Now there are no reasons to just plot the raw data and include it in your thesis, reports, etc!
+Getting activity patterns is one of the most habitual analyses of camera trap data. It is visual, intuitive and interesting. In addition, activity level (i.e. the proportion of the day that the population spend in movement), is a basic parameter for lastly estimate other ecological parameters. 
+Here, I provide a simple example to estimate activity pattern and activity level (and their precision). Now there are no reasons to just plot the raw data and include it in your thesis, reports, etc!
 
 
 # 2. Let's do it!
@@ -34,11 +34,13 @@ library(activity) # load package
 ```
 
 ## 2.2 Preparing the data
-Two main steps. 
-First, we will replicate those sequences in which more than one individual were recorded.Take in mind that the basic data to estimate activity is the number of indiviuals active in a given time of the day. In our data base, we included a row for each independent group of individuals. Now, we will duplicate rows till create a row for each individual (we will do it automatically, no worries!)
-Second, we will transform clock time to radian (circular) units. (Note that 23:59 and 00:01 are so far on clock time, but actually only 2 minutes appart. Radian units solve this aspect). Again, we will do it in one line of code.
+Two main steps:
 
-Please, see a more in detail explanation in Rowcliffe et al. (2014) Methods Ecol. Evol. 5(11):1170-1179.
+First, we will replicate those sequences in which more than one individual were recorded. Take in mind that the basic data to estimate activity is the number of individuals active at a given time of the day. In our database, we included a row for each independent group of individuals. Now, we will duplicate rows till create a row for each individual (we will do it automatically, no worries!)
+
+Second, we will transform clock time into radian (circular) units. (Note that 23:59 and 00:01 are far away on clock time, but actually only 2 minutes apart. Radian units solve this aspect). Again, we will do it in one line of code.
+
+Please, see a more in detail explanation about activity and camera traps (method, assumptions...) in Rowcliffe et al. (2014) Methods Ecol. Evol. 5(11):1170-1179.
 
 ```{r}
 
@@ -71,9 +73,10 @@ actmod@act
 
 ```
 
-Activity pattern: the plot showed a peak on activity pattern at the sunset (i.e. all the indivual in the population are active at this moment). During the night, the animals activity progressively decrease (i.e. resting period). The basal-diurnal activity is minimum. At this point I should clarify that the data come from a red deer (*Cervus elaphus*) population in central Spain sampled in spring
+Activity pattern: the plot showed a peak in activity pattern at the sunset (i.e. all the individuals in the population are active at this moment). During the night, the animals' activity progressively decreases (i.e. resting period). The basal-diurnal activity is minimum. At this point I should clarify that the data come from a red deer (*Cervus elaphus*) population in central Spain sampled during spring.
 
 Activity level: the mean value is 0.31, which can be interpreted as the population spent active (0.31*24) 7.44 hours per day (thus, 16.56 hours resting). Precision results are also plotted and provided.
 
-Now you can run the code with your data and include the activity pattern discuss the activity level, etc!
+Now you can run the code with your data and include the activity pattern, discuss the activity level, etc! Much more fancy!
+
 

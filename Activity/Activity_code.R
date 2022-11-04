@@ -44,4 +44,4 @@ actmod <- fitact(radtime, sample="data")
 plot(actmod)
 
 # activity level
-show(actmod)
+actmod@act
