@@ -1,0 +1,79 @@
+---
+title: '**Activity & camera trap vignette**'
+author: "Pablo Palencia"
+date: "`r Sys.Date()`"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_knit$set(root.dir = 'C:/rprojects/CameraTrappingAnalysis/Activity/Data')
+```
+
+
+# 1. Background
+
+Getting activity patterns is one of the most habitual analysis from camera trap data. It is visual, intuitive and interesting. In addition, activity level (i.e. proportion of the day that the population spend in movement), is a basic parameter for lastly estimate other ecological parameters. 
+Here, I provide a simple example to estimate activity pattern and activity level (and its precision). Now there are no reasons to just plot the raw data and include it in your thesis, reports, etc!
+
+
+# 2. Let's do it!
+## 2.1 Load data and *activity* package
+We will use the *activity* package.
+```{r, warning=FALSE, message=FALSE}
+# Load data frame
+data_activity <- read.table("Data.txt", sep = ";", dec=".", header=TRUE, as.is=TRUE) # data frame
+
+# Data frame structure:
+# N_ind: Number of individuals recorded
+# Time: Time (HH:MM:SS format) when animals were recorded
+
+#install.packages("activity") # just in case you didnt install the package previously
+library(activity) # load package
+```
+
+## 2.2 Preparing the data
+Two main steps. 
+First, we will replicate those sequences in which more than one individual were recorded.Take in mind that the basic data to estimate activity is the number of indiviuals active in a given time of the day. In our data base, we included a row for each independent group of individuals. Now, we will duplicate rows till create a row for each individual (we will do it automatically, no worries!)
+Second, we will transform clock time to radian (circular) units. (Note that 23:59 and 00:01 are so far on clock time, but actually only 2 minutes appart. Radian units solve this aspect). Again, we will do it in one line of code.
+
+Please, see a more in detail explanation in Rowcliffe et al. (2014) Methods Ecol. Evol. 5(11):1170-1179.
+
+```{r}
+
+# Replicating each sequence based on the number of animals recorded
+data_activity.r <- data_activity[rep(row.names(data_activity), data_activity$N_ind), 1:2] 
+
+# Convert time of data to a numeric vector of radian time-of-day
+data_activity.r$radtime <- gettime(data_activity.r$Time, "%H:%M:%S", "proportion")
+radtime <- 2*pi*gettime(data_activity.r$Time, "%H:%M:%S", "proportion")
+
+
+```
+
+## 2.3 Fitting the model
+Now we are going to fit the model using *fitact* function
+```{r}
+
+# fit activity model
+actmod <- fitact(radtime, sample="data") 
+
+```
+
+## 2.4 Exploring the results!
+```{r, fig.width=10, fig.height=6, fig.cap='**Figure 1**: Activity pattern'}
+# plot activity pattern
+plot(actmod)
+
+# activity level
+actmod@act
+
+```
+
+Activity pattern: the plot showed a peak on activity pattern at the sunset (i.e. all the indivual in the population are active at this moment). During the night, the animals activity progressively decrease (i.e. resting period). The basal-diurnal activity is minimum. At this point I should clarify that the data come from a red deer (*Cervus elaphus*) population in central Spain sampled in spring
+
+Activity level: the mean value is 0.31, which can be interpreted as the population spent active (0.31*24) 7.44 hours per day (thus, 16.56 hours resting). Precision results are also plotted and provided.
+
+Now you can run the code with your data and include the activity pattern discuss the activity level, etc!
+
