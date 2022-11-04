@@ -184,7 +184,7 @@ data.dens <- as.data.frame(dataREM)
 
 tm <- sum(colSums(operat, na.rm = FALSE, dims = 1))- sum(operat$CAM) # Survey effort (camera days)
 
-data.dens <- subset(data.dens, Dist_det < 10.1 | is.na(Dist_det)) # Based on truncation distance to estime EDD. NAs are new sequences
+data.dens <- subset(data.dens, Dist_det < 10.1 | is.na(Dist_det)) # Based on truncation distance to estimate EDD. NAs are new sequences
 seq <- length(data.dens[, 1]) # Number of sequences 
 
 operat$oper_days<-rowSums(operat, dims = 1)-operat$CAM
@@ -194,10 +194,10 @@ operat$tr <- operat$Freq/operat$oper_days
 
 library(dplyr)
 tr<-operat[,c("Freq","oper_days")] # Selecting columns
-tr <- subset(tr, oper_days > 0) # remove CT that doesnt work propoerly
+tr <- subset(tr, oper_days > 0) # remove CT that doesnt work properly
 
 #Plot encounter rate
-df_coord$ER <- tr$Freq # add encounter rate to coordinates dataframe
+df_coord$ER <- tr$Freq # add encounter rate to coordinates data frame
 
 library(ggplot2)
 ggplot(data=df_coord) + 
