@@ -1,0 +1,624 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={REM analysis vignette},
+  pdfauthor={Pablo Palencia},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{\textbf{REM analysis vignette}}
+\author{Pablo Palencia}
+\date{2025-12-01}
+
+\begin{document}
+\maketitle
+
+\section{1. Introduction}\label{introduction}
+
+\subsection{1.1 REM background}\label{rem-background}
+
+The Random Encounter Model (\textbf{REM}) is a method for estimating
+animal density from camera trap data without the need for individual
+recognition (Rowcliffe et al., 2008 - J. App. Ecol. 45: 1228-1236). Over
+the last years REM has been used for a wide range of species, with
+densities values (both in terms of precision and accuracy) equivalent to
+gold-reference methods (Palencia et al., 2022 - Remote Sens. Ecol.
+Conserv. 8(5): 670-682).
+
+Briefly, the REM is based on modelling the random encounters between
+animals and cameras, and accounting for all the variables that affect
+the encounter rate (i.e.~animal speed and camera's detection zone).
+
+REM equation: \[
+D = \frac{y}{t} \frac{\pi}{v·r·(2+ \alpha) }
+\] in which \emph{y} is the number of encounters (i.e.~number of
+individuals entered detection zone), \emph{t} is total camera survey
+effort, \emph{v} is the average distance traveled by an individual
+during a day (day range), and \emph{r} and \(\alpha\) are the radius and
+angle of the camera traps detection zone, respectively.
+
+\subsection{1.2 Practical exercise}\label{practical-exercise}
+
+Here, we are going to estimate population density of a fallow deer
+(\emph{Dama dama}) population sampled with 40 camera traps. (Why fallow
+deer? Easy, is my favorite species, see \textbf{Fig. 1}). Survey design
+consisted in a systematic design with random origin; concretely cameras
+were deployed at the intersection of a grid with 2km spacing.
+
+\begin{figure}
+\centering
+\includegraphics{E:/rprojects/CameraTrappingAnalysis/REM/Data/FallowDeerPhoto.jpg}
+\caption{\textbf{Figure 1}: Fallow deer picture}
+\end{figure}
+
+It is worth noting that all parameters required to apply the REM (i.e.,
+day range, encounter rate, and detection zone) can be estimated directly
+from camera‐trap data, without relying on auxiliary sources. Although
+this approach demands additional effort---especially during image
+processing---it is recommended, as it allows the spatio-temporal
+variation in day range and the variability in the detection zone to be
+properly accounted for, including differences related to target species,
+camera-trap models, settings, and environmental conditions, among
+others. Finally, in spite of I'm going to use other packages, should be
+noted that \emph{remBoot} R package implement REM calculations in R
+(Caravaggi, 2017 - J. Open Source Softw.- 2(10):176).
+
+\section{2. Importing data frames and
+functions}\label{importing-data-frames-and-functions}
+
+Three data frames are needed to run the analysis: i) the raw data of day
+range, detection zone and encounter rate, ii) the operativity matrix
+(information about camera traps functionality), and iii) camera trap
+coordinates (just for plots and exploratory analysis). Additionally, we
+will need to import a couple of functions that are not included in an R
+package (these functions were developed by M. Rowcliffe and Distance
+Sampling folks from St.~Andrews University).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Load data frames}
+\NormalTok{dataREM }\OtherTok{\textless{}{-}} \FunctionTok{read.table}\NormalTok{(}\StringTok{"Data.txt"}\NormalTok{, }\AttributeTok{sep =} \StringTok{";"}\NormalTok{, }\AttributeTok{dec=}\StringTok{"."}\NormalTok{, }\AttributeTok{header=}\ConstantTok{TRUE}\NormalTok{, }\AttributeTok{as.is=}\ConstantTok{TRUE}\NormalTok{) }\CommentTok{\# parameters data frame}
+\NormalTok{operat }\OtherTok{\textless{}{-}} \FunctionTok{read.table}\NormalTok{(}\StringTok{"Operativity.txt"}\NormalTok{, }\AttributeTok{sep =} \StringTok{";"}\NormalTok{, }\AttributeTok{dec=}\StringTok{"."}\NormalTok{, }\AttributeTok{header=}\ConstantTok{TRUE}\NormalTok{, }\AttributeTok{as.is=}\ConstantTok{TRUE}\NormalTok{) }\CommentTok{\# operativity matrix (to estimate survey effort)}
+\NormalTok{df\_coord }\OtherTok{\textless{}{-}} \FunctionTok{read.table}\NormalTok{(}\StringTok{"Coordinates.txt"}\NormalTok{, }\AttributeTok{sep =} \StringTok{";"}\NormalTok{, }\AttributeTok{dec=}\StringTok{"."}\NormalTok{, }\AttributeTok{header=}\ConstantTok{TRUE}\NormalTok{, }\AttributeTok{as.is=}\ConstantTok{TRUE}\NormalTok{) }\CommentTok{\# camera trap locations (plots, maps etc.)}
+
+\CommentTok{\# Load functions}
+\FunctionTok{source}\NormalTok{(}\StringTok{"REM\_functions.R"}\NormalTok{) }\CommentTok{\# importing some key functions to run the analysis}
+
+
+\CommentTok{\# Packages required to run the analyses}
+\FunctionTok{library}\NormalTok{(activity) }\CommentTok{\# to estimate activity pattern and day range (available on CRAN)}
+\FunctionTok{library}\NormalTok{(trappingmotion) }\CommentTok{\# to estimate speed and day range (available on github https://github.com/PabloPalencia/trappingmotion)}
+\FunctionTok{library}\NormalTok{(Distance) }\CommentTok{\# to estimate detection zone (available on CRAN)}
+\FunctionTok{library}\NormalTok{(dplyr) }\CommentTok{\# to work with data frames (available on CRAN)}
+\FunctionTok{library}\NormalTok{(ggplot2) }\CommentTok{\# to plot encounter rates (available on CRAN)}
+\end{Highlighting}
+\end{Shaded}
+
+\section{3. Analysis}\label{analysis}
+
+As described above, all the parameters needed to apply REM will be
+estimated from camera trap data (\emph{dataREM} data frame). I have
+included a specific section for each parameter.
+
+\subsection{3.1 Day range}\label{day-range}
+
+Day range is a parameter that relies on animal movement. Recent studies
+have described a procedure to estimate day range from camera trapping
+data (Palencia et al.~2021 - Methods Ecol. Evol. 12(7):1201-1212;
+Rowcliffe et al.~2016 - Remote Sens. Ecol. Conserv. 2:84-94). Briefly,
+day range is estimated as the product of speed (average speed of travel
+while active) and activity rate (proportion of day that the population
+spent active).
+
+\subsubsection{3.1.1 Activity}\label{activity}
+
+To estimate activity, we will use the time in which each encounter was
+recorded.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Convert time of dataREM to a numeric vector of radian time{-}of{-}day}
+\NormalTok{time\_rad }\OtherTok{\textless{}{-}} \FunctionTok{gettime}\NormalTok{(dataREM}\SpecialCharTok{$}\NormalTok{time, }\AttributeTok{format =} \StringTok{"\%H:\%M:\%S"}\NormalTok{)}
+
+\CommentTok{\# fit activity model}
+\NormalTok{actmod }\OtherTok{\textless{}{-}} \FunctionTok{fitact}\NormalTok{(time\_rad, }\AttributeTok{sample=}\StringTok{"model"}\NormalTok{) }\CommentTok{\#sample=model: large sample size (greater than 100{-}200); sample=dataREM: small sample size (less than 100); o sample=none: no bootstrapping.}
+
+\CommentTok{\# Plot activity patterns}
+\FunctionTok{par}\NormalTok{(}\AttributeTok{mfrow=}\FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{)); }\FunctionTok{plot}\NormalTok{(actmod)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+\centering
+\includegraphics{REM_vignette_files/figure-latex/unnamed-chunk-2-1.pdf}
+\caption{\textbf{Figure 2}: Activity pattern}
+\end{figure}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{actmod}\SpecialCharTok{@}\NormalTok{act[}\DecValTok{1}\NormalTok{] }\CommentTok{\# mean activity level}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##       act 
+## 0.3322645
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{actmod}\SpecialCharTok{@}\NormalTok{act[}\DecValTok{2}\NormalTok{] }\CommentTok{\# SE activity level}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##         se 
+## 0.04969952
+\end{verbatim}
+
+Activity results showed a clear peak around sunrise and two peaks around
+sunset \textbf{Fig. 2}. n activity level of 0.33 indicates that the
+population was active for 7.92 hours per day (0.33 x 24).
+
+\subsubsection{3.1.2 Speed}\label{speed}
+
+To estimate speed, we will use the column ``speed'', which include speed
+estimations in m/s. Using the package \emph{trappingmotion} we will
+follow the procedure described by Palencia et al.~(2021) - Methods Ecol.
+Evol. 12(7): 1201-1212. Briefly, we will identify different movement
+behaviours on the basis of the speeds (\textbf{Fig. 3}); and for each
+behaviour, we will estimate the average speed.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Explore speed distribution. Sometimes it is necessary to remove extreme{-}low/high values}
+\FunctionTok{par}\NormalTok{(}\AttributeTok{mfrow=}\FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{))}
+\FunctionTok{boxplot}\NormalTok{(dataREM}\SpecialCharTok{$}\NormalTok{speed); }\FunctionTok{hist}\NormalTok{(dataREM}\SpecialCharTok{$}\NormalTok{speed)}
+\NormalTok{dataREM.speed }\OtherTok{\textless{}{-}} \FunctionTok{subset}\NormalTok{(dataREM, speed }\SpecialCharTok{\textless{}} \DecValTok{8}\NormalTok{)}
+\CommentTok{\#dataREM.speed \textless{}{-} subset(dataREM.speed, speed \textgreater{} 0.04)}
+
+\FunctionTok{identbhvs}\NormalTok{(dataREM.speed}\SpecialCharTok{$}\NormalTok{speed) }\CommentTok{\# identify movement states}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+\centering
+\includegraphics{REM_vignette_files/figure-latex/unnamed-chunk-3-1.pdf}
+\caption{\textbf{Figure 3}: Movement behaviours identified}
+\end{figure}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{table}\NormalTok{(behav\_class}\SpecialCharTok{$}\NormalTok{behaviour)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##   1   2   3 
+##  14  44 138
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{meanspeed}\NormalTok{(behav\_class) }\CommentTok{\# average movement speed of each state}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{3.1 Day range}\label{day-range-1}
+
+Finally, day range is estimated as the sum of the product of the mean
+speed and the proportion of the activity level associated with each
+behaviour.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{dayrange}\NormalTok{(}\AttributeTok{act=}\NormalTok{actmod}\SpecialCharTok{@}\NormalTok{act[}\DecValTok{1}\NormalTok{], }\AttributeTok{act\_se=}\NormalTok{actmod}\SpecialCharTok{@}\NormalTok{act[}\DecValTok{2}\NormalTok{], speed\_data) }\CommentTok{\#day range (daily distance traveled)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Day range (Km/day) 4.185252 
+## Day range SE (Km/day) 0.5591891
+\end{verbatim}
+
+The day range estimated is 4.19 km/day (SE=0.54), which means that, in
+average, each fallow deer in the population travels 4.19 km per day.
+
+\subsection{3.2 Detection zone}\label{detection-zone}
+
+To estimate the effective detection zone (the area effectively monitored
+by the cameras), we will follow the procedure described by Rowcliffe et
+al.~(2011) - Methods Ecol. Evol. 2(5):465-476. This approach is based on
+distance sampling theory (see Buckland et al.~2001 for further details),
+and therefore requires recording the position (distance and angle
+relative to the camera) at which fallow deer are first detected. I also
+recommend consulting Hofmeester et al.~(2017 - Remote Sens. Ecol.
+Conserv. 3(2):81-89) which provides a practical and straightforward
+method for estimating detection zones when working with camera traps.
+
+\subsubsection{3.2.1 Radius}\label{radius}
+
+To estimate the effective detection radius, we will use the ``radius'',
+column, which contains the distance (in meters) between the animal and
+the camera at the moment of entry. We will apply a point-transect
+distance sampling approach. It should be noted that more advanced models
+can be used by incorporating covariates such as vegetation density,
+camera model, etc.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# explore and define the truncation distance}
+\FunctionTok{hist}\NormalTok{(dataREM}\SpecialCharTok{$}\NormalTok{radius)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{REM_vignette_files/figure-latex/unnamed-chunk-5-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{w\_rad }\OtherTok{\textless{}{-}} \DecValTok{10}
+\CommentTok{\# half{-}normal}
+\NormalTok{hn }\OtherTok{\textless{}{-}} \FunctionTok{ds}\NormalTok{(dataREM}\SpecialCharTok{$}\NormalTok{radius, }\AttributeTok{transect =} \StringTok{"point"}\NormalTok{, }\AttributeTok{key=}\StringTok{"hn"}\NormalTok{, }\AttributeTok{adjustment =} \ConstantTok{NULL}\NormalTok{, }\AttributeTok{truncation=}\NormalTok{w\_rad)}
+\NormalTok{hn\_cos }\OtherTok{\textless{}{-}} \FunctionTok{ds}\NormalTok{(dataREM}\SpecialCharTok{$}\NormalTok{radius, }\AttributeTok{transect =} \StringTok{"point"}\NormalTok{, }\AttributeTok{key=}\StringTok{"hn"}\NormalTok{, }\AttributeTok{adjustment =} \StringTok{"cos"}\NormalTok{, }\AttributeTok{nadj =} \DecValTok{1}\NormalTok{, }\AttributeTok{truncation=}\NormalTok{w\_rad)}
+\NormalTok{hn\_herm }\OtherTok{\textless{}{-}} \FunctionTok{ds}\NormalTok{(dataREM}\SpecialCharTok{$}\NormalTok{radius, }\AttributeTok{transect =} \StringTok{"point"}\NormalTok{, }\AttributeTok{key=}\StringTok{"hn"}\NormalTok{, }\AttributeTok{adjustment =} \StringTok{"herm"}\NormalTok{, }\AttributeTok{nadj =} \DecValTok{1}\NormalTok{, }\AttributeTok{truncation=}\NormalTok{w\_rad)}
+\NormalTok{hn\_poly }\OtherTok{\textless{}{-}} \FunctionTok{ds}\NormalTok{(dataREM}\SpecialCharTok{$}\NormalTok{radius, }\AttributeTok{transect =} \StringTok{"point"}\NormalTok{, }\AttributeTok{key=}\StringTok{"hn"}\NormalTok{, }\AttributeTok{adjustment =} \StringTok{"poly"}\NormalTok{, }\AttributeTok{nadj =} \DecValTok{1}\NormalTok{, }\AttributeTok{truncation=}\NormalTok{w\_rad)}
+
+\CommentTok{\# hazard{-}rate}
+\NormalTok{hr }\OtherTok{\textless{}{-}} \FunctionTok{ds}\NormalTok{(dataREM}\SpecialCharTok{$}\NormalTok{radius, }\AttributeTok{transect =} \StringTok{"point"}\NormalTok{, }\AttributeTok{key=}\StringTok{"hr"}\NormalTok{, }\AttributeTok{adjustment =} \ConstantTok{NULL}\NormalTok{, }\AttributeTok{truncation=}\NormalTok{w\_rad)}
+\NormalTok{hr\_cos }\OtherTok{\textless{}{-}} \FunctionTok{ds}\NormalTok{(dataREM}\SpecialCharTok{$}\NormalTok{radius, }\AttributeTok{transect =} \StringTok{"point"}\NormalTok{, }\AttributeTok{key=}\StringTok{"hr"}\NormalTok{, }\AttributeTok{adjustment =} \StringTok{"cos"}\NormalTok{, }\AttributeTok{nadj =} \DecValTok{1}\NormalTok{, }\AttributeTok{truncation=}\NormalTok{w\_rad)}
+\NormalTok{hr\_herm }\OtherTok{\textless{}{-}} \FunctionTok{ds}\NormalTok{(dataREM}\SpecialCharTok{$}\NormalTok{radius, }\AttributeTok{transect =} \StringTok{"point"}\NormalTok{, }\AttributeTok{key=}\StringTok{"hr"}\NormalTok{, }\AttributeTok{adjustment =} \StringTok{"herm"}\NormalTok{, }\AttributeTok{nadj =} \DecValTok{1}\NormalTok{, }\AttributeTok{truncation=}\NormalTok{w\_rad)}
+\NormalTok{hr\_poly }\OtherTok{\textless{}{-}} \FunctionTok{ds}\NormalTok{(dataREM}\SpecialCharTok{$}\NormalTok{radius, }\AttributeTok{transect =} \StringTok{"point"}\NormalTok{, }\AttributeTok{key=}\StringTok{"hr"}\NormalTok{, }\AttributeTok{adjustment =} \StringTok{"poly"}\NormalTok{, }\AttributeTok{nadj =} \DecValTok{1}\NormalTok{, }\AttributeTok{truncation=}\NormalTok{w\_rad)}
+\end{Highlighting}
+\end{Shaded}
+
+After testing all these models, we will select the best one on the basis
+of AIC:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# model selection}
+\FunctionTok{AIC}\NormalTok{(hn, hn\_cos, hn\_herm, hn\_poly, hr, hr\_cos, hr\_herm, hr\_poly)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##         df      AIC
+## hn       1 724.4942
+## hn_cos   2 726.4939
+## hn_herm  2 726.4613
+## hn_poly  2 726.1085
+## hr       2 726.1141
+## hr_cos   3 727.1004
+## hr_herm  3 727.9617
+## hr_poly  3 728.1141
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# select best model}
+\CommentTok{\# (mind the fact that if your data is spiked at zero, you have to be careful with the hazard{-}rate model (details in Buckland et al. 2001))}
+\NormalTok{best\_modRad }\OtherTok{\textless{}{-}}\NormalTok{ hn }
+
+\CommentTok{\# Estimating effective detection radius and (SE)}
+\NormalTok{EfecRad }\OtherTok{\textless{}{-}} \FunctionTok{EDRtransform}\NormalTok{(best\_modRad)}
+
+\NormalTok{EfecRad}\SpecialCharTok{$}\NormalTok{EDR }\CommentTok{\# mean (m)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 5.736822
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{EfecRad}\SpecialCharTok{$}\NormalTok{se.EDR }\CommentTok{\# SE (m)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##           [,1]
+## [1,] 0.2601836
+\end{verbatim}
+
+\includegraphics{REM_vignette_files/figure-latex/unnamed-chunk-7-1.pdf}
+Effective detection radius (\textbf{Fig. 4}) is 5.73 m (SE=0.26), which
+is consistent with previous studies (e.g.~Hofmeester et al.~2017 -
+Remote Sens. Ecol. Conserv. 3(2):81-89).
+
+\subsubsection{3.2.2 Angle}\label{angle}
+
+To estimate the effective detection angle, we will use the ``angle'',
+column, which records the angle (in degrees) at which the individual
+enters the field of view. We considered angle = 0 to represent the
+center of the camera's field of view and assumed that the detection zone
+is symmetric. The procedure is similar to that used for estimating the
+detection radius; however, in this case we apply a line-transect
+distance sampling approach. It should be noted that more complex models
+can incorporating covariates can be also fitted.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{dataREM}\SpecialCharTok{$}\NormalTok{angle }\OtherTok{\textless{}{-}} \FunctionTok{abs}\NormalTok{(dataREM}\SpecialCharTok{$}\NormalTok{angle)}
+\FunctionTok{hist}\NormalTok{(dataREM}\SpecialCharTok{$}\NormalTok{angle)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{REM_vignette_files/figure-latex/unnamed-chunk-8-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{w\_ang }\OtherTok{\textless{}{-}} \FloatTok{0.41} \CommentTok{\# truncation angle in radians (=23.5 grados)}
+
+\CommentTok{\# half{-}normal}
+\NormalTok{hn\_Ang }\OtherTok{\textless{}{-}} \FunctionTok{ds}\NormalTok{(dataREM}\SpecialCharTok{$}\NormalTok{angle, }\AttributeTok{transect =} \StringTok{"line"}\NormalTok{, }\AttributeTok{key=}\StringTok{"hn"}\NormalTok{, }\AttributeTok{adjustment =} \ConstantTok{NULL}\NormalTok{, }\AttributeTok{truncation=}\NormalTok{w\_ang)}
+\NormalTok{hn\_cosAng }\OtherTok{\textless{}{-}} \FunctionTok{ds}\NormalTok{(dataREM}\SpecialCharTok{$}\NormalTok{angle, }\AttributeTok{transect =} \StringTok{"line"}\NormalTok{, }\AttributeTok{key=}\StringTok{"hn"}\NormalTok{, }\AttributeTok{adjustment =} \StringTok{"cos"}\NormalTok{, }\AttributeTok{nadj =} \DecValTok{1}\NormalTok{, }\AttributeTok{truncation=}\NormalTok{w\_ang)}
+\NormalTok{hn\_hermAng }\OtherTok{\textless{}{-}} \FunctionTok{ds}\NormalTok{(dataREM}\SpecialCharTok{$}\NormalTok{angle, }\AttributeTok{transect =} \StringTok{"line"}\NormalTok{, }\AttributeTok{key=}\StringTok{"hn"}\NormalTok{, }\AttributeTok{adjustment =} \StringTok{"herm"}\NormalTok{, }\AttributeTok{nadj =} \DecValTok{1}\NormalTok{, }\AttributeTok{truncation=}\NormalTok{w\_ang)}
+\NormalTok{hn\_polyAng }\OtherTok{\textless{}{-}} \FunctionTok{ds}\NormalTok{(dataREM}\SpecialCharTok{$}\NormalTok{angle, }\AttributeTok{transect =} \StringTok{"line"}\NormalTok{, }\AttributeTok{key=}\StringTok{"hn"}\NormalTok{, }\AttributeTok{adjustment =} \StringTok{"poly"}\NormalTok{, }\AttributeTok{nadj =} \DecValTok{1}\NormalTok{, }\AttributeTok{truncation=}\NormalTok{w\_ang)}
+
+\CommentTok{\# hazard{-}rate}
+\NormalTok{hr\_Ang }\OtherTok{\textless{}{-}} \FunctionTok{ds}\NormalTok{(dataREM}\SpecialCharTok{$}\NormalTok{angle, }\AttributeTok{transect =} \StringTok{"line"}\NormalTok{, }\AttributeTok{key=}\StringTok{"hr"}\NormalTok{, }\AttributeTok{adjustment =} \ConstantTok{NULL}\NormalTok{, }\AttributeTok{truncation=}\NormalTok{w\_ang)}
+\NormalTok{hr\_cosAng }\OtherTok{\textless{}{-}} \FunctionTok{ds}\NormalTok{(dataREM}\SpecialCharTok{$}\NormalTok{angle, }\AttributeTok{transect =} \StringTok{"line"}\NormalTok{, }\AttributeTok{key=}\StringTok{"hr"}\NormalTok{, }\AttributeTok{adjustment =} \StringTok{"cos"}\NormalTok{, }\AttributeTok{nadj =} \DecValTok{1}\NormalTok{, }\AttributeTok{truncation=}\NormalTok{w\_ang)}
+\NormalTok{hr\_hermAng }\OtherTok{\textless{}{-}} \FunctionTok{ds}\NormalTok{(dataREM}\SpecialCharTok{$}\NormalTok{angle, }\AttributeTok{transect =} \StringTok{"line"}\NormalTok{, }\AttributeTok{key=}\StringTok{"hr"}\NormalTok{, }\AttributeTok{adjustment =} \StringTok{"herm"}\NormalTok{, }\AttributeTok{nadj =} \DecValTok{1}\NormalTok{, }\AttributeTok{truncation=}\NormalTok{w\_ang)}
+\NormalTok{hr\_polyAng }\OtherTok{\textless{}{-}} \FunctionTok{ds}\NormalTok{(dataREM}\SpecialCharTok{$}\NormalTok{angle, }\AttributeTok{transect =} \StringTok{"line"}\NormalTok{, }\AttributeTok{key=}\StringTok{"hr"}\NormalTok{, }\AttributeTok{adjustment =} \StringTok{"poly"}\NormalTok{, }\AttributeTok{nadj =} \DecValTok{1}\NormalTok{, }\AttributeTok{truncation=}\NormalTok{w\_ang)}
+
+\CommentTok{\# uniform}
+\NormalTok{uni\_cosAng }\OtherTok{\textless{}{-}} \FunctionTok{ds}\NormalTok{(dataREM}\SpecialCharTok{$}\NormalTok{angle, }\AttributeTok{transect =} \StringTok{"line"}\NormalTok{, }\AttributeTok{key=}\StringTok{"uni"}\NormalTok{, }\AttributeTok{adjustment =} \StringTok{"cos"}\NormalTok{, }\AttributeTok{nadj =} \DecValTok{1}\NormalTok{, }\AttributeTok{truncation=}\NormalTok{w\_ang)}
+\NormalTok{uni\_hermAng }\OtherTok{\textless{}{-}} \FunctionTok{ds}\NormalTok{(dataREM}\SpecialCharTok{$}\NormalTok{angle, }\AttributeTok{transect =} \StringTok{"line"}\NormalTok{, }\AttributeTok{key=}\StringTok{"uni"}\NormalTok{, }\AttributeTok{adjustment =} \StringTok{"herm"}\NormalTok{, }\AttributeTok{nadj =} \DecValTok{1}\NormalTok{, }\AttributeTok{truncation=}\NormalTok{w\_ang)}
+\NormalTok{uni\_polyAng }\OtherTok{\textless{}{-}} \FunctionTok{ds}\NormalTok{(dataREM}\SpecialCharTok{$}\NormalTok{angle, }\AttributeTok{transect =} \StringTok{"line"}\NormalTok{, }\AttributeTok{key=}\StringTok{"uni"}\NormalTok{, }\AttributeTok{adjustment =} \StringTok{"poly"}\NormalTok{, }\AttributeTok{nadj =} \DecValTok{1}\NormalTok{, }\AttributeTok{truncation=}\NormalTok{w\_ang)}
+\end{Highlighting}
+\end{Shaded}
+
+After testing all these models, we will select the best one on the basis
+of AIC:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# model comparison}
+\FunctionTok{AIC}\NormalTok{(hn\_Ang, hn\_cosAng, hn\_hermAng, hn\_polyAng, hr\_Ang, hr\_cosAng, hr\_hermAng, hr\_polyAng, uni\_cosAng, uni\_hermAng, uni\_polyAng)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##             df       AIC
+## hn_Ang       1 -365.3384
+## hn_cosAng    2 -363.3381
+## hn_hermAng   2 -363.3381
+## hn_polyAng   2 -363.3381
+## hr_Ang       2 -366.1389
+## hr_cosAng    3 -362.3197
+## hr_hermAng   3 -363.0055
+## hr_polyAng   3 -363.0055
+## uni_cosAng   1 -365.3384
+## uni_hermAng  1 -365.3384
+## uni_polyAng  1 -365.3384
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# select best model}
+\NormalTok{best\_modAng }\OtherTok{\textless{}{-}}\NormalTok{ uni\_cosAng  }
+
+\CommentTok{\# Estimating effective detection radius and (SE)}
+\NormalTok{summary\_ang}\OtherTok{\textless{}{-}} \FunctionTok{summary}\NormalTok{(best\_modAng}\SpecialCharTok{$}\NormalTok{ddf)}
+
+\NormalTok{EfecAng\_mean }\OtherTok{\textless{}{-}}\NormalTok{ summary\_ang}\SpecialCharTok{$}\NormalTok{average.p}\SpecialCharTok{*}\NormalTok{w\_ang }\CommentTok{\# mean (radians)}
+\NormalTok{EfecAng\_SE }\OtherTok{\textless{}{-}}\NormalTok{  summary\_ang}\SpecialCharTok{$}\NormalTok{average.p.se}\SpecialCharTok{*}\NormalTok{w\_ang }\CommentTok{\# SE (radians)}
+\end{Highlighting}
+\end{Shaded}
+
+Effective detection radius (\textbf{Fig. 5}) is 0.41 rad (SE=0.04)
+(i.e.~23.49 degrees).
+
+\includegraphics{REM_vignette_files/figure-latex/unnamed-chunk-10-1.pdf}
+Finally, and just to clarify, the interpretation of effective detection
+radius (or angle) is the threshold value at which the expected number of
+missed within is equal to the expected number detected beyond (Buckland
+et al.~2001).
+
+\subsection{3.3 Encounter rate}\label{encounter-rate}
+
+Finally, we will estimate the encounter rate. In our data frame
+(\emph{dataREM}), a new row was added each time an individual entered
+the detection zone (i.e., each encounter), with individuals treated as
+the unit of observation. Based on this, we will aggregate the number of
+rows for each (dataREM\$camera). In addition, the sampling effort for
+each camera trap will be estimated using the information provided in
+(\emph{operat}), which records the operational period of each camera.
+
+\includegraphics{REM_vignette_files/figure-latex/unnamed-chunk-11-1.pdf}
+In summary, we need a data frame (here \emph{enc\_rate}) in which one
+column represent the \emph{y} parameter (here \emph{Freq}) and another
+column represent \emph{t} parameter (here \emph{days}) of the REM
+equation.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{head}\NormalTok{(enc\_rate) }\CommentTok{\# data frame to estimate encounter rate}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##   Freq days
+## 1    4   60
+## 2   34   60
+## 3    0   40
+## 4    0   60
+## 5    2   60
+## 6    2   60
+\end{verbatim}
+
+As \textbf{Fig. 6} shows, encounter rates are highly aggregated. In 20
+of the 40 cameras, no animals were detected, whereas in two cameras more
+than 30 sequences were recorded at each site. This pattern is common in
+REM studies due to the random placement of cameras and the naturally
+uneven distribution of animals. Crucially, most of the variance in
+density estimates arises from the variation in encounter rates among
+camera traps.
+
+\section{4. Density results}\label{density-results}
+
+After estimate all the parameters necessary to apply REM, we can
+estimate population density.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# We include in a list average values of day range and detection zone}
+\NormalTok{param }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{(}\AttributeTok{DR =}\NormalTok{ DR,}
+              \AttributeTok{r =}\NormalTok{ EfecRad}\SpecialCharTok{$}\NormalTok{EDR }\SpecialCharTok{/} \DecValTok{1000}\NormalTok{,}
+              \AttributeTok{theta =}\NormalTok{ EfecAng\_mean}\SpecialCharTok{*}\DecValTok{2}\NormalTok{)}
+
+\CommentTok{\# We include in a list standard error values of day range and detection zone}
+\NormalTok{paramse }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{(}\AttributeTok{DR =}\NormalTok{ DR\_se,}
+                \AttributeTok{r =}\NormalTok{ EfecRad}\SpecialCharTok{$}\NormalTok{se.EDR }\SpecialCharTok{/} \DecValTok{1000}\NormalTok{,}
+                \AttributeTok{theta =}\NormalTok{ EfecAng\_SE}\SpecialCharTok{*}\DecValTok{2}\NormalTok{)}
+
+\CommentTok{\# Density estimation}
+\NormalTok{density}\OtherTok{\textless{}{-}}\FunctionTok{bootTRD}\NormalTok{(enc\_rate}\SpecialCharTok{$}\NormalTok{Freq, enc\_rate}\SpecialCharTok{$}\NormalTok{days, param, paramse); density}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##       Density       SE
+## [1,] 3.347081 1.103912
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# CV}
+\NormalTok{density[,}\DecValTok{2}\NormalTok{]}\SpecialCharTok{/}\NormalTok{density[,}\DecValTok{1}\NormalTok{]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##        SE 
+## 0.3298132
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Log{-}normal CIs}
+\NormalTok{df\_lnorm\_confint }\OtherTok{\textless{}{-}} \FunctionTok{lnorm\_confint}\NormalTok{(density[,}\DecValTok{1}\NormalTok{], density[,}\DecValTok{2}\NormalTok{])}
+\end{Highlighting}
+\end{Shaded}
+
+Finally, the density of this fallow deer population is 3.35
+ind/\(km^{2}\) (SE=1.09). Average and SE errors of REM parameters are
+included in the data frame \emph{results}:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Saving results}
+\FunctionTok{head}\NormalTok{(results)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##       seq   tm dr(km/day) dr_se(km/day)     r(m)   r_se(m) ang(rad) ang_se(rad)
+## Value 160 2218   4.185252     0.5591891 5.736822 0.2601836     0.82  0.08185672
+##       d(ind/km2) d_se(ind/km2) lcl_lognorm95% ucl_lognorm95%
+## Value   3.347081      1.103912       1.782969       6.283313
+\end{verbatim}
+
+\end{document}
