@@ -3,8 +3,8 @@ title: '**REM analysis vignette**'
 author: "Pablo Palencia"
 date: "`r Sys.Date()`"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -227,8 +227,7 @@ Finally, we will estimate the encounter rate. In our data frame (*dataREM*), a n
 
 dataREM.dens <- as.data.frame(dataREM)
 
-# Load the operatity matrix to estimate survey effort
-operat <- read.table("Operativity.txt", sep = ";", dec=".", header=TRUE, as.is=TRUE)
+# estimate survey effort
 tm <- sum(operat$days) # Survey effort (camera days)
 
 dataREM.dens$angle <- abs(dataREM.dens$angle)
