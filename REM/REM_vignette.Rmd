@@ -3,8 +3,8 @@ title: '**REM analysis vignette**'
 author: "Pablo Palencia"
 date: "`r Sys.Date()`"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -34,7 +34,7 @@ Here, we are going to estimate population density of a fallow deer (*Dama dama*)
 It is worth noting that all parameters required to apply the REM (i.e., day range, encounter rate, and detection zone) can be estimated directly from camera‐trap data, without relying on auxiliary sources. Although this approach demands additional effort—especially during image processing—it is recommended, as it allows the spatio-temporal variation in day range and the variability in the detection zone to be properly accounted for, including differences related to target species, camera-trap models, settings, and environmental conditions, among others.
 Finally, in spite of I'm going to use other packages, should be noted that *remBoot* R package implement REM calculations in R (Caravaggi, 2017 - J. Open Source Softw.- 2(10):176).
 
-# 2. Importing dataframes and functions
+# 2. Importing data frames and functions
 Three data frames are needed to run the analysis: i) the raw data of day range, detection zone and encounter rate, ii) the operativity matrix (information about camera traps functionality), and iii) camera trap coordinates (just for plots and exploratory analysis). 
 Additionally, we will need to import a couple of functions that are not included in an R package (these functions were developed by M. Rowcliffe and Distance Sampling folks from St. Andrews University).
 
@@ -116,7 +116,7 @@ To estimate the effective detection zone (the area effectively monitored by the 
 ### 3.2.1 Radius
 To estimate the effective detection radius, we will use the "radius", column, which contains the distance (in meters) between the animal and the camera at the moment of entry. We will apply a point-transect distance sampling approach. It should be noted that more advanced models can be used by incorporating covariates such as vegetation density, camera model, etc. 
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 # explore and define the truncation distance
 hist(dataREM$radius)
 
@@ -168,11 +168,10 @@ Effective detection radius (**Fig. 4**) is 5.73 m (SE=0.26), which is consistent
 ### 3.2.2 Angle
 To estimate the effective detection angle, we will use the "angle", column, which records the angle (in degrees) at which the individual enters the field of view. We considered angle = 0 to represent the center of the camera’s field of view and assumed that the detection zone is symmetric. The procedure is similar to that used for estimating the detection radius; however, in this case we apply a line-transect distance sampling approach. It should be noted that more complex models can incorporating covariates can be also fitted.
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 dataREM$angle <- abs(dataREM$angle)
 hist(dataREM$angle)
-FOV <- 52 # field of view of the cameras (degrees)
-w_ang <- 0.41
+w_ang <- 0.41 # truncation angle in radians (=23.5 grados)
 
 # half-normal
 hn_Ang <- ds(dataREM$angle, transect = "line", key="hn", adjustment = NULL, truncation=w_ang)
@@ -199,7 +198,7 @@ After testing all these models, we will select the best one on the basis of AIC:
 AIC(hn_Ang, hn_cosAng, hn_hermAng, hn_polyAng, hr_Ang, hr_cosAng, hr_hermAng, hr_polyAng, uni_cosAng, uni_hermAng, uni_polyAng)
 
 # select best model
-best_modAng <- hn_hermAng  
+best_modAng <- uni_cosAng  
 
 # Estimating effective detection radius and (SE)
 summary_ang<- summary(best_modAng$ddf)
@@ -208,7 +207,7 @@ EfecAng_mean <- summary_ang$average.p*w_ang # mean (radians)
 EfecAng_SE <-  summary_ang$average.p.se*w_ang # SE (radians)
 
 ```
-Effective detection radius (**Fig. 5**) is 0.41 rad (SE=0.04)
+Effective detection radius (**Fig. 5**) is 0.41 rad (SE=0.04) (i.e. 23.49 degrees).
 
 ```{r, echo=FALSE, fig.keep='last', fig.cap='**Figure 5**: Detection angle plot'}
 
@@ -224,7 +223,7 @@ Finally, and just to clarify, the interpretation of effective detection radius (
 Finally, we will estimate the encounter rate. In our data frame (*dataREM*), a new row was added each time an individual entered the detection zone (i.e., each encounter), with individuals treated as the unit of observation. Based on this, we will aggregate the number of rows for each (dataREM$camera). In addition, the sampling effort for each camera trap will be estimated using the information provided in (*operat*), which records the operational period of each camera. 
 
 
-```{r, echo=FALSE, fig.keep='last', fig.cap='**Figure 6**: Encounter rate map. The areas of the blue circles are proportional to the encounter rates'}
+```{r, warning=FALSE, message=FALSE, echo=FALSE, fig.keep='last', fig.cap='**Figure 6**: Encounter rate map. The areas of the blue circles are proportional to the encounter rates'}
 
 dataREM.dens <- as.data.frame(dataREM)
 
@@ -272,10 +271,10 @@ In summary, we need a data frame (here *enc_rate*) in which one column represent
 head(enc_rate) # data frame to estimate encounter rate
 ```
 
-As **Fig. 6** evidenced, encounter rates are aggregated (and usually overdispersed).In 20 of the 40 cameras, no animals were registered; while in two cameras more that 30 sequences were recorded in each one. This is habitual in REM studies because of the random design and the irregular distribution of the animals. The most important practical consideration is that most of the density variance is attributable to the variation in encounter rate between camera traps. In conclusion, improvements in encounter rate precision are needed to improve density variances estimates. 
+As **Fig. 6** shows, encounter rates are highly aggregated. In 20 of the 40 cameras, no animals were detected, whereas in two cameras more than 30 sequences were recorded at each site. This pattern is common in REM studies due to the random placement of cameras and the naturally uneven distribution of animals. Crucially, most of the variance in density estimates arises from the variation in encounter rates among camera traps. 
 
 # 4. Density results
-After estimate all the parameters necessary to apply REM, we can estimate population density. Overall variance of REM density is estimated using delta method. The variance associated with the encounter rate is estimated by resampling camera locations with replacement 1000 times.
+After estimate all the parameters necessary to apply REM, we can estimate population density.
 ```{r}
 # We include in a list average values of day range and detection zone
 param <- list(DR = DR,
@@ -288,15 +287,21 @@ paramse <- list(DR = DR_se,
                 theta = EfecAng_SE*2)
 
 # Density estimation
-density<-bootTRD(tr$Freq, tr$oper_days, param, paramse); density
+density<-bootTRD(enc_rate$Freq, enc_rate$days, param, paramse); density
+
+# CV
+density[,2]/density[,1]
+
+# Log-normal CIs
+df_lnorm_confint <- lnorm_confint(density[,1], density[,2])
 
 ```
 
-Finally, the density of this fallow deer population is 7.92 ind/$km^{2}$ (SE=3.39). Average and SE errors of REM parameters are included in the data frame *results*:
+Finally, the density of this fallow deer population is 3.35 ind/$km^{2}$ (SE=1.09). Average and SE errors of REM parameters are included in the data frame *results*:
 ```{r, echo=FALSE}
 # Saving results
-results <- data.frame(seq, tm, DR, DR_se, EfecRad$EDR, EfecRad$se.EDR, EfecAng_mean*2, EfecAng_SE*2, density[,1], density[,2])
-dimnames(results) <- list("Value", c("y(seq)","t(days)", "s(km/day)","s_se(km/day)", "r(m)", "r_se(m)", "ang(rad)", "ang_se(rad)", "d(ind/km2)", "d_se(ind/km2)")); View(results)
+results <- data.frame(seq, tm, DR, DR_se, EfecRad$EDR, EfecRad$se.EDR, EfecAng_mean*2, EfecAng_SE*2, density[,1], density[,2], df_lnorm_confint[1,1], df_lnorm_confint[1,2])
+dimnames(results) <- list("Value", c("seq","tm", "dr(km/day)","dr_se(km/day)", "r(m)", "r_se(m)", "ang(rad)", "ang_se(rad)", "d(ind/km2)", "d_se(ind/km2)", "lcl_lognorm95%", "ucl_lognorm95%")); View(results)
 
 ```
 
