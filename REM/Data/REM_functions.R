@@ -63,3 +63,11 @@ EDRtransform <- function(dsobject, alpha=0.05) {
   ci.edr <- c(edr / c.mult, edr * c.mult)
   return(list(EDR=edr, se.EDR=se.edr, ci.EDR=ci.edr))
 }
+
+lnorm_confint <- function(estimate, se, percent=95){
+  if(length(estimate) != length(se)) 
+    stop("estimate and se must have the same number of values")
+  z <- qt((1 - percent/100) / 2, Inf, lower.tail = FALSE)
+  w <- exp(z * sqrt(log(1 + (se/estimate)^2)))
+  data.frame(lcl=estimate/w, ucl=estimate*w)
+}

@@ -8,14 +8,14 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_knit$set(root.dir = 'C:/rprojects/CameraTrappingAnalysis/REM/Data')
+knitr::opts_knit$set(root.dir = 'E:/rprojects/CameraTrappingAnalysis/REM/Data')
 ```
 
 
 # 1. Introduction
 
 ## 1.1 REM background
-The Random Encounter Model (**REM**) is a method for estimating animal density from camera trap data without the need for individual recognition (Rowcliffe et al., 2008 - J. App. Ecol. 45: 1228-1236). Over the last years it has been used for a wide range of unmarked species (Cusack et al., 2015 - J. Wild. Manag. 79(6): 1014-1021; ENETWILD-consortium et al., 2019 - EFSA Supporting Publications - 16(9); Pfeffer et al., 2018 - Remote Sens. Ecol. Conserv. 2:84-94; Palencia et al., 2022 -  Remote Sens. Ecol. Conserv. 8(5): 670-682; Zero et al., 2013 - Oryx 47(3): 410-419). Most of these studies highlighted the potential of REM as a promising method to monitor unmarked populations.
+The Random Encounter Model (**REM**) is a method for estimating animal density from camera trap data without the need for individual recognition (Rowcliffe et al., 2008 - J. App. Ecol. 45: 1228-1236). Over the last years REM has been used for a wide range of species, with densities values (both in terms of precision and accuracy) equivalent to gold-reference methods (Palencia et al., 2022 - Remote Sens. Ecol. Conserv. 8(5): 670-682).
 
 Briefly, the REM is based on modelling the random encounters between animals and cameras, and accounting for all the variables that affect the encounter rate (i.e. animal speed and camera's detection zone). 
 
@@ -23,15 +23,15 @@ REM equation:
 $$
 D = \frac{y}{t} \frac{\pi}{v·r·(2+ \alpha) }
 $$
-in which *y* is the number of encounters (i.e. number of individuals entered detection zone), *t* is total camera survey effort, *v* is the average distance travelled by an individual during a day (day range), and *r* and $\alpha$ are the radius and angle of the camera traps detection zone, respectively. 
+in which *y* is the number of encounters (i.e. number of individuals entered detection zone), *t* is total camera survey effort, *v* is the average distance traveled by an individual during a day (day range), and *r* and $\alpha$ are the radius and angle of the camera traps detection zone, respectively. 
 
 ## 1.2 Practical exercise
-Here, we are going to estimate population density of fallow deer (*Dama dama*) population sampled with 30 camera traps. (Why fallow deer? Easy, is my favorite species, see **Fig. 1**). Survey design consisted in a systematic design with random origin; concretely cameras were deployed at the intersection of a grid with 2km spacing.
+Here, we are going to estimate population density of a fallow deer (*Dama dama*) population sampled with 40 camera traps. (Why fallow deer? Easy, is my favorite species, see **Fig. 1**). Survey design consisted in a systematic design with random origin; concretely cameras were deployed at the intersection of a grid with 2km spacing.
 
-![**Figure 1**: Fallow deer picture](C:/rprojects/CameraTrappingAnalysis/REM/Data/FallowDeerPhoto.jpg)
+![**Figure 1**: Fallow deer picture](E:/rprojects/CameraTrappingAnalysis/REM/Data/FallowDeerPhoto.jpg)
 
 
-Should be noted that all the necessary parameters to apply REM (i.e. day range, encounter rate and detection zone) will be derived from camera trap data, without the need of auxiliary data. This required additional effort, mainly during image processing, but it is recommended taking into account the spatio-temporal variations in day range, and the variability in detection zone as function of target species, camera trap brand, settings and environmental variables between others. 
+It is worth noting that all parameters required to apply the REM (i.e., day range, encounter rate, and detection zone) can be estimated directly from camera‐trap data, without relying on auxiliary sources. Although this approach demands additional effort—especially during image processing—it is recommended, as it allows the spatio-temporal variation in day range and the variability in the detection zone to be properly accounted for, including differences related to target species, camera-trap models, settings, and environmental conditions, among others.
 Finally, in spite of I'm going to use other packages, should be noted that *remBoot* R package implement REM calculations in R (Caravaggi, 2017 - J. Open Source Softw.- 2(10):176).
 
 # 2. Importing dataframes and functions
@@ -39,9 +39,9 @@ Three data frames are needed to run the analysis: i) the raw data of day range, 
 Additionally, we will need to import a couple of functions that are not included in an R package (these functions were developed by M. Rowcliffe and Distance Sampling folks from St. Andrews University).
 
 ```{r, warning=FALSE, message=FALSE}
-# Load dataframes
-dataREM <- read.table("Data.txt", sep = ";", dec=".", header=TRUE, as.is=TRUE) # parameters dataframe
-operat <- read.table("Operativity.txt", sep = ";", dec=".", header=TRUE, as.is=TRUE) # operatity matrix (to estimate survey effort)
+# Load data frames
+dataREM <- read.table("Data.txt", sep = ";", dec=".", header=TRUE, as.is=TRUE) # parameters data frame
+operat <- read.table("Operativity.txt", sep = ";", dec=".", header=TRUE, as.is=TRUE) # operativity matrix (to estimate survey effort)
 df_coord <- read.table("Coordinates.txt", sep = ";", dec=".", header=TRUE, as.is=TRUE) # camera trap locations (plots, maps etc.)
 
 # Load functions
@@ -57,51 +57,45 @@ library(ggplot2) # to plot encounter rates (available on CRAN)
 ```
 
 # 3. Analysis
-As described above, all the parameters needed to apply REM will be derived from camera trap data (*dataREM* data frame). I have included a specific section for each parameter.
+As described above, all the parameters needed to apply REM will be estimated from camera trap data (*dataREM* data frame). I have included a specific section for each parameter.
 
 ## 3.1 Day range
 Day range is a parameter that relies on animal movement. Recent studies have described a procedure to estimate day range from camera trapping data (Palencia et al. 2021 - Methods Ecol. Evol. 12(7):1201-1212; Rowcliffe et al. 2016 - Remote Sens. Ecol. Conserv. 2:84-94). Briefly, day range is estimated as the product of speed (average speed of travel while active) and activity rate (proportion of day that the population spent active).
 
 ### 3.1.1 Activity
-To estimate activity, we will use the columns "G_size" and "H_first". "G_size" includes the number of animals observed per group, and "H_first" includes the time of the first photo of each group.(Additionally, to avoid the bias caused by shorter detection distances at night (see Palencia et al. 2022 J. Zool. 316(3): 197-208; Rowcliffe et al. 2014 Methods Ecol. Evol, 5(11): 1170-1179), we are only going to considered for activity estimate sequences closer than 5m to the cameras (i.e. "Interval.min == 1 | 2").
+To estimate activity, we will use the time in which each encounter was recorded.
 
 ```{r, fig.width=10, fig.height=6, fig.cap='**Figure 2**: Activity pattern'}
-data.acti <- as.data.frame(dataREM)
 
-# Estimating radian time of day
-data.acti$T_sec2 <- as.numeric(strptime(data.acti$H_first, format="%H:%M:%S") - as.POSIXct(format(Sys.Date())), units="secs")
-data.acti$T_0_1 <- data.acti$T_sec2/86400; data.acti <- subset(data.acti, G_size!="NA") # remove NAs
+# Convert time of dataREM to a numeric vector of radian time-of-day
+time_rad <- gettime(dataREM$time, format = "%H:%M:%S")
 
-# Replicating each sequence based on the group size
-activity.repli <- data.acti[rep(row.names(data.acti), data.acti$G_size), 1:16] 
-
-# Discariding observations further than 5 meters (see Rowcliffe et al. 2014 Methods Ecol. Evol, 5(11): 1170-1179)
-activity.repli <- subset(activity.repli, Interval.min =="1"  | Interval.min =="2")
-
-# Estimating activity rate
-activityRES <- 2*pi*activity.repli$T_0_1
-mod1 <- fitact(activityRES, sample="data") 
+# fit activity model
+actmod <- fitact(time_rad, sample="model") #sample=model: large sample size (greater than 100-200); sample=dataREM: small sample size (less than 100); o sample=none: no bootstrapping.
 
 # Plot activity patterns
-par(mfrow=c(1,1)); plot(mod1)
+par(mfrow=c(1,1)); plot(actmod)
 
-mod1@act[1] # mean activity level
-mod1@act[2] # SE activity level
+actmod@act[1] # mean activity level
+actmod@act[2] # SE activity level
 
 ```
 
-Activity results evidenced two peaks of activity during sunrise and sunset **Fig. 2**, which is expected for ungulates. Activity level of 0.24 can be interpreted as the population spent acitive (0.24 x 24) 5.76 hours per day.  
+Activity results showed a clear peak around sunrise and two peaks around sunset **Fig. 2**. n activity level of 0.33 indicates that the population was active for 7.92 hours per day (0.33 x 24).  
 
 ### 3.1.2 Speed
-To estimate speed, we will use the column "Speed.m.s", which include speed estimations in m/s of those animals that did not react to the camera traps. Using the package *trappingmotion* we will follow the procedure described by Palencia et al. (2021) - Methods Ecol. Evol. 12(7): 1201-1212. Briefly, we will identify different movement behaviours on the basis of the speeds (**Fig. 3**); and for each behaviour, we will estimate the average speed. Those sequences in which animals react to the camera trap should not be considered for speed estimation (Rowcliffe et al. 2016 - Remote Sens. Ecol. Conserv. 2:84-94).
+To estimate speed, we will use the column "speed", which include speed estimations in m/s. Using the package *trappingmotion* we will follow the procedure described by Palencia et al. (2021) - Methods Ecol. Evol. 12(7): 1201-1212. Briefly, we will identify different movement behaviours on the basis of the speeds (**Fig. 3**); and for each behaviour, we will estimate the average speed.
 
 ```{r, warning=FALSE, message=FALSE, fig.keep='last', fig.cap='**Figure 3**: Movement behaviours identified'}
 
-data.speed <- subset(dataREM, Behaviour != "Curiosity") # discard animals that react to the camera
-data.speed <- subset(data.speed, Speed.m.s!="NA"); 
-data.speed$Speed.m.s <- as.numeric(as.character(data.speed$Speed.m.s)) # Remove NAs
+# Explore speed distribution. Sometimes it is necessary to remove extreme-low/high values
+par(mfrow=c(1,2))
+boxplot(dataREM$speed); hist(dataREM$speed)
+dataREM.speed <- subset(dataREM, speed < 8)
+#dataREM.speed <- subset(dataREM.speed, speed > 0.04)
 
-identbhvs(data.speed$Speed.m.s) # identify movement state
+identbhvs(dataREM.speed$speed) # identify movement states
+table(behav_class$behaviour)
 meanspeed(behav_class) # average movement speed of each state
 
 ```
@@ -110,53 +104,46 @@ meanspeed(behav_class) # average movement speed of each state
 Finally, day range is estimated as the sum of the product of the mean speed and the proportion of the activity level associated with each behaviour.
 ```{r}
 
-dayrange(act=mod1@act[1], act_se=mod1@act[2], speed_data) #day range (daily distance traveled)
+dayrange(act=actmod@act[1], act_se=actmod@act[2], speed_data) #day range (daily distance traveled)
 
 ```
 
-The day range estimated is 1.37 km/day (SE=0.15), which means that, in average, each fallow deer in the population travels 1.37km per day.
+The day range estimated is 4.19 km/day (SE=0.54), which means that, in average, each fallow deer in the population travels 4.19 km per day.
 
 ## 3.2 Detection zone
-To estimate effective detection zone (area effectively monitored by cameras), we will follow the procedure described by Rowcliffe et al. (2011) - Methods Ecol. Evol. 2(5):465-476. These procedure borrows from distance sampling theory (see Buckland et al. 2001 for further details), and for that it is needed to record the position (distance and angle relative to the camera) where the fallow deer are first detected. I also recommend to have a look to Hofmeester et al. 2017 - Remote Sens. Ecol. Conserv. 3(2):81-89 for practical and simple method to estimate detection zone when working with camera traps. 
+To estimate the effective detection zone (the area effectively monitored by the cameras), we will follow the procedure described by Rowcliffe et al. (2011) - Methods Ecol. Evol. 2(5):465-476. This approach is based on distance sampling theory (see Buckland et al. 2001 for further details), and therefore requires recording the position (distance and angle relative to the camera) at which fallow deer are first detected. I also recommend consulting Hofmeester et al. (2017 - Remote Sens. Ecol. Conserv. 3(2):81-89) which provides a practical and straightforward method for estimating detection zones when working with camera traps. 
 
 ### 3.2.1 Radius
-To estimate effective detection radius we will use the column "Dist_det", which includes the distance -in meters- between animals and cameras when the animals enter. We will apply a point-transect distance sampling. Should be noted that advanced models can be considered by including covariates as sampling point or vegetation cover etc. But the ones tested here should fit the vast majority of the scenarios. 
+To estimate the effective detection radius, we will use the "radius", column, which contains the distance (in meters) between the animal and the camera at the moment of entry. We will apply a point-transect distance sampling approach. It should be noted that more advanced models can be used by incorporating covariates such as vegetation density, camera model, etc. 
 
 ```{r}
-data_dz_r<-subset(dataREM, Dist_det >= 0 ) # selecting data to estimate effective detection radius
+# explore and define the truncation distance
+hist(dataREM$radius)
 
-w_rad <- 10 # truncation distance (in meters)
-
+w_rad <- 10
 # half-normal
-hn <- ds(data_dz_r$Dist_det, transect = "point", key="hn", adjustment = NULL, truncation=w_rad) 
+hn <- ds(dataREM$radius, transect = "point", key="hn", adjustment = NULL, truncation=w_rad)
+hn_cos <- ds(dataREM$radius, transect = "point", key="hn", adjustment = "cos", nadj = 1, truncation=w_rad)
+hn_herm <- ds(dataREM$radius, transect = "point", key="hn", adjustment = "herm", nadj = 1, truncation=w_rad)
+hn_poly <- ds(dataREM$radius, transect = "point", key="hn", adjustment = "poly", nadj = 1, truncation=w_rad)
 
-#hazard-rate
-hr <- ds(data_dz_r$Dist_det, transect = "point", key="hr", adjustment = NULL, truncation=w_rad) 
+# hazard-rate
+hr <- ds(dataREM$radius, transect = "point", key="hr", adjustment = NULL, truncation=w_rad)
+hr_cos <- ds(dataREM$radius, transect = "point", key="hr", adjustment = "cos", nadj = 1, truncation=w_rad)
+hr_herm <- ds(dataREM$radius, transect = "point", key="hr", adjustment = "herm", nadj = 1, truncation=w_rad)
+hr_poly <- ds(dataREM$radius, transect = "point", key="hr", adjustment = "poly", nadj = 1, truncation=w_rad)
 
 ```
-Here I've included just two models as example, but should be tested as minimun all the combinations between 'half-normal' and 'hazard-rate' functions, 'cos', 'herm' and 'poly' adjustments, and orders 0 and 2.
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE}
-# half-normal
-hn_cos <- ds(data_dz_r$Dist_det, transect = "point", key="hn", adjustment = "cos", nadj = 1, truncation=w_rad)
-hn_herm <- ds(data_dz_r$Dist_det, transect = "point", key="hn", adjustment = "herm", nadj = 1, truncation=w_rad)
-hn_poly <- ds(data_dz_r$Dist_det, transect = "point", key="hn", adjustment = "poly", nadj = 1, truncation=w_rad)
-
-#hazard-rate
-hr_cos <- ds(data_dz_r$Dist_det, transect = "point", key="hr", adjustment = "cos", nadj = 1, truncation=w_rad)
-hr_herm <- ds(data_dz_r$Dist_det, transect = "point", key="hr", adjustment = "herm", nadj = 1, truncation=w_rad)
-hr_poly <- ds(data_dz_r$Dist_det, transect = "point", key="hr", adjustment = "poly", nadj = 1, truncation=w_rad)
-
-```
 After testing all these models, we will select the best one on the basis of AIC:
 
 ```{r}
-#model comparison
+# model selection
 AIC(hn, hn_cos, hn_herm, hn_poly, hr, hr_cos, hr_herm, hr_poly)
 
 # select best model
 # (mind the fact that if your data is spiked at zero, you have to be careful with the hazard-rate model (details in Buckland et al. 2001))
-best_modRad <- hr # AIC 413.44
+best_modRad <- hn 
 
 # Estimating effective detection radius and (SE)
 EfecRad <- EDRtransform(best_modRad)
@@ -176,56 +163,43 @@ plot(best_modRad, main="Best model", xlab="Radius (m)", pdf=TRUE,
      showpoints=FALSE, lwd=3, xlim=c(0, 10))
 
 ```
-Effective detection radius (**Fig. 4**) is 4.83m (SE=0.88), which is consistent with previous studies (e.g. Hofmeester et al. 2017 - Remote Sens. Ecol. Conserv. 3(2):81-89).
+Effective detection radius (**Fig. 4**) is 5.73 m (SE=0.26), which is consistent with previous studies (e.g. Hofmeester et al. 2017 - Remote Sens. Ecol. Conserv. 3(2):81-89).
 
 ### 3.2.2 Angle
-To estimate effective detection angle we will use the column "Angle_det", which include the angle -in degrees- when the individual enters. 
-We considered angle=0 in the center of the field of view, and we assumed that detection zone is symmetric
-We will proceed in a similar way than when estimating radius. Now, we apply a line-transect distance sampling. Should be noted that advanced models can be considered by including covariates as sampling point or vegetation cover, betweeen others.
+To estimate the effective detection angle, we will use the "angle", column, which records the angle (in degrees) at which the individual enters the field of view. We considered angle = 0 to represent the center of the camera’s field of view and assumed that the detection zone is symmetric. The procedure is similar to that used for estimating the detection radius; however, in this case we apply a line-transect distance sampling approach. It should be noted that more complex models can incorporating covariates can be also fitted.
 
 ```{r}
-data_dz_ang<-subset(dataREM, Ang_det != "NA" ) # selecting data to estimate effective detection angle
-
-data_dz_ang$Ang_rad <- abs(data_dz_ang$Ang_det*0.0174533) # transform degrees to radians
-FOV <- 42 # field of view of the cameras (degrees)
-w_ang <- FOV/2*0.0174533 # truncation angle (in radians)
+dataREM$angle <- abs(dataREM$angle)
+hist(dataREM$angle)
+FOV <- 52 # field of view of the cameras (degrees)
+w_ang <- 0.41
 
 # half-normal
-hn_Ang <- ds(data_dz_ang$Ang_rad, transect = "line", key="hn", adjustment = NULL, truncation=w_ang) 
+hn_Ang <- ds(dataREM$angle, transect = "line", key="hn", adjustment = NULL, truncation=w_ang)
+hn_cosAng <- ds(dataREM$angle, transect = "line", key="hn", adjustment = "cos", nadj = 1, truncation=w_ang)
+hn_hermAng <- ds(dataREM$angle, transect = "line", key="hn", adjustment = "herm", nadj = 1, truncation=w_ang)
+hn_polyAng <- ds(dataREM$angle, transect = "line", key="hn", adjustment = "poly", nadj = 1, truncation=w_ang)
 
-#hazard-rate
-hr_Ang <- ds(data_dz_ang$Ang_rad, transect = "line", key="hr", adjustment = NULL, truncation=w_ang) 
+# hazard-rate
+hr_Ang <- ds(dataREM$angle, transect = "line", key="hr", adjustment = NULL, truncation=w_ang)
+hr_cosAng <- ds(dataREM$angle, transect = "line", key="hr", adjustment = "cos", nadj = 1, truncation=w_ang)
+hr_hermAng <- ds(dataREM$angle, transect = "line", key="hr", adjustment = "herm", nadj = 1, truncation=w_ang)
+hr_polyAng <- ds(dataREM$angle, transect = "line", key="hr", adjustment = "poly", nadj = 1, truncation=w_ang)
 
-```
-Again, all the combinations between 'half-normal' and 'hazard-rate' functions, 'cos', 'herm' and 'poly' adjustments, and orders 0 and 2 should be tested.
-
-```{r, echo=FALSE, warning=FALSE, message=FALSE}
-# half-normal
-hn_cosAng <- ds(data_dz_ang$Ang_rad, transect = "line", key="hn", adjustment = "cos", nadj = 1, truncation=w_ang)
-hn_hermAng <- ds(data_dz_ang$Ang_rad, transect = "line", key="hn", adjustment = "herm", nadj = 1, truncation=w_ang)
-hn_polyAng <- ds(data_dz_ang$Ang_rad, transect = "line", key="hn", adjustment = "poly", nadj = 1, truncation=w_ang)
-
-#hazard-rate
-hr_cosAng <- ds(data_dz_ang$Ang_rad, transect = "line", key="hr", adjustment = "cos", nadj = 1, truncation=w_ang)
-hr_hermAng <- ds(data_dz_ang$Ang_rad, transect = "line", key="hr", adjustment = "herm", nadj = 1, truncation=w_ang)
-hr_polyAng <- ds(data_dz_ang$Ang_rad, transect = "line", key="hr", adjustment = "poly", nadj = 1, truncation=w_ang)
-
-#uniform
-uni_cosAng <- ds(data_dz_ang$Ang_rad, transect = "line", key="uni", adjustment = "cos", nadj = 1, truncation=w_ang)
-uni_hermAng <- ds(data_dz_ang$Ang_rad, transect = "line", key="uni", adjustment = "herm", nadj = 1, truncation=w_ang)
-uni_polyAng <- ds(data_dz_ang$Ang_rad, transect = "line", key="uni", adjustment = "poly", nadj = 1, truncation=w_ang)
+# uniform
+uni_cosAng <- ds(dataREM$angle, transect = "line", key="uni", adjustment = "cos", nadj = 1, truncation=w_ang)
+uni_hermAng <- ds(dataREM$angle, transect = "line", key="uni", adjustment = "herm", nadj = 1, truncation=w_ang)
+uni_polyAng <- ds(dataREM$angle, transect = "line", key="uni", adjustment = "poly", nadj = 1, truncation=w_ang)
 
 ```
 After testing all these models, we will select the best one on the basis of AIC:
 
 ```{r}
-#model comparison
+# model comparison
 AIC(hn_Ang, hn_cosAng, hn_hermAng, hn_polyAng, hr_Ang, hr_cosAng, hr_hermAng, hr_polyAng, uni_cosAng, uni_hermAng, uni_polyAng)
 
-
 # select best model
-# (mind the fact that if your data is spiked at zero, you have to be carefoul with the hazard-rate model (details in Buckland et al. 2001))
-best_modAng <- hr_Ang  # AIC -236.43
+best_modAng <- hn_hermAng  
 
 # Estimating effective detection radius and (SE)
 summary_ang<- summary(best_modAng$ddf)
@@ -234,7 +208,7 @@ EfecAng_mean <- summary_ang$average.p*w_ang # mean (radians)
 EfecAng_SE <-  summary_ang$average.p.se*w_ang # SE (radians)
 
 ```
-Effective detection radius (**Fig. 5**) is 0.33rad (SE=0.01)
+Effective detection radius (**Fig. 5**) is 0.41 rad (SE=0.04)
 
 ```{r, echo=FALSE, fig.keep='last', fig.cap='**Figure 5**: Detection angle plot'}
 
@@ -247,54 +221,58 @@ plot(best_modAng, main="Best model", xlab="Angle (rad)",
 Finally, and just to clarify, the interpretation of effective detection radius (or angle) is the threshold value at which the expected number of missed within is equal to the expected number detected beyond (Buckland et al. 2001). 
 
 ## 3.3 Encounter rate
-Finally, we will estimate encounter rate. In our data frame (*dataREM*), each time that an individuals enters in the detection zone (encounter) we added a row. Individuals were considered as the unit of observation. Considering that, we will aggregate the number of rows per each "Point_ID" (our camera trap ID). Additionally, we will estimate the sampling effort of each camera trap using the information provided in (*operat*). 
+Finally, we will estimate the encounter rate. In our data frame (*dataREM*), a new row was added each time an individual entered the detection zone (i.e., each encounter), with individuals treated as the unit of observation. Based on this, we will aggregate the number of rows for each (dataREM$camera). In addition, the sampling effort for each camera trap will be estimated using the information provided in (*operat*), which records the operational period of each camera. 
 
 
 ```{r, echo=FALSE, fig.keep='last', fig.cap='**Figure 6**: Encounter rate map. The areas of the blue circles are proportional to the encounter rates'}
 
-data.dens <- as.data.frame(dataREM)
+dataREM.dens <- as.data.frame(dataREM)
 
-tm <- sum(colSums(operat, na.rm = FALSE, dims = 1))- sum(operat$CAM) # Survey effort (camera days)
+# Load the operatity matrix to estimate survey effort
+operat <- read.table("Operativity.txt", sep = ";", dec=".", header=TRUE, as.is=TRUE)
+tm <- sum(operat$days) # Survey effort (camera days)
 
-data.dens <- subset(data.dens, Dist_det < 10.1 | is.na(Dist_det)) # Based on truncation distance to estimate EDD. NAs are new sequences
-seq <- length(data.dens[, 1]) # Number of sequences 
+dataREM.dens$angle <- abs(dataREM.dens$angle)
+dataREM.dens <- subset(dataREM.dens, radius <= w_rad & angle <= w_ang) # Based on truncation distance to estimate effective radius and angle
+seq <- length(dataREM.dens[, 1]) # Number of encounters
 
-operat$oper_days<-rowSums(operat, dims = 1)-operat$CAM
-seq_point<-data.frame(table(data.dens$Point_ID))
-operat <- merge(operat, seq_point, by.x= "CAM", by.y = "Var1", all.x = TRUE); operat[is.na(operat)] <- 0
-operat$tr <- operat$Freq/operat$oper_days
+seq_point<-(table(dataREM.dens$camera))
+operat <- merge(operat, seq_point, by.x= "camera", by.y = "Var1", all.x = TRUE); operat[is.na(operat)] <- 0
+operat$tr <- operat$Freq/operat$days
 
-tr<-operat[,c("Freq","oper_days")] # Selecting columns
-tr <- subset(tr, oper_days > 0) # remove CT that doesn't work properly
+enc_rate<-operat[,c("Freq","days")] # Selecting columns
 
-#Plot encounter rate
-df_coord$ER <- tr$Freq # add encounter rate to coordinates data frame
+# Plot encounter rate
+df_coord$ER <- enc_rate$Freq # add encounter rate to coordinates dataREM frame
 
-library(ggplot2)
-ggplot(data=df_coord) + 
-  aes(x=Long, y=Lat, size=ER) + 
-  geom_point(alpha=1, shape=16, col='blue') +
-  scale_size(breaks = c(0, 1, 5, 10, 20, 50), range = c(1, 20))+
+ggplot(data = df_coord) +
+  aes(x = x, y = y, size = ER, colour = ER == 0) + 
+  geom_point(alpha = 1, shape = 16) +
+  scale_size(breaks = c(0, 1, 5, 10, 20, 50), range = c(1, 40)) +
+  scale_colour_manual(values = c("FALSE" = "blue", "TRUE" = "red")) +
   ylab("Latitude (m)") +
   xlab("Longitude (m)") +
-  theme(panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.background = element_blank(),
-        panel.border = element_rect(colour = "black", fill=NA, size=1),
-        legend.position = "none",
-        axis.title.y = element_text(color="black", size=20, face="bold"),
-        axis.title.x = element_text(color="black", size=20, face="bold"),
-        axis.text.y = element_text(size=rel(2)),
-        axis.text.x = element_text(size=rel(2)))
+  theme(
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
+    panel.border = element_rect(colour = "black", fill = NA, size = 1),
+    legend.position = "none",
+    axis.title.y = element_text(color = "black", size = 20, face = "bold"),
+    axis.title.x = element_text(color = "black", size = 20, face = "bold"),
+    axis.text.y = element_text(size = rel(2)),
+    axis.text.x = element_text(size = rel(2))
+  )
+
 
 ```
-In summary, we need a data frame (here *tr*) in which one column represent the *y* parameter (here *Freq*) and another column represent *t* parameter (here *oper_days*) of the REM equation.
+In summary, we need a data frame (here *enc_rate*) in which one column represent the *y* parameter (here *Freq*) and another column represent *t* parameter (here *days*) of the REM equation.
 
 ```{r}
-head(tr) # data frame to estimate encounter rate
+head(enc_rate) # data frame to estimate encounter rate
 ```
 
-As **Fig. 6** evidenced, encounter rates are aggregated (and usually overdispersed).In 15 of the 30 cameras, no animals were registered; while in two cameras more that 50 sequences were recorded in each one. This is habitual in REM studies because of the random design and the irregular distribution of the animals. The most important practical consideration is that most of the density variance is attributable to the variation in encounter rate between camera traps. In conclusion, improvements in encounter rate precision are needed to improve density variances estimates. 
+As **Fig. 6** evidenced, encounter rates are aggregated (and usually overdispersed).In 20 of the 40 cameras, no animals were registered; while in two cameras more that 30 sequences were recorded in each one. This is habitual in REM studies because of the random design and the irregular distribution of the animals. The most important practical consideration is that most of the density variance is attributable to the variation in encounter rate between camera traps. In conclusion, improvements in encounter rate precision are needed to improve density variances estimates. 
 
 # 4. Density results
 After estimate all the parameters necessary to apply REM, we can estimate population density. Overall variance of REM density is estimated using delta method. The variance associated with the encounter rate is estimated by resampling camera locations with replacement 1000 times.
